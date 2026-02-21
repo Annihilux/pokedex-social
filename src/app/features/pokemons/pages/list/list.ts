@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PokemonService } from '../../services/pokemon';
 import { PokemonListItem } from '../../../../shared/models/pokemon.model';
+
+type PokemonCard = { id: number; name: string };
 
 @Component({
   selector: 'app-list',
@@ -14,10 +16,20 @@ import { PokemonListItem } from '../../../../shared/models/pokemon.model';
 export class ListComponent {
   loading = signal(true);
   errorMsg = signal<string | null>(null);
-  pokemons = signal<PokemonListItem[]>([]);
 
-  // paginación simple
-  limit = 20;
+  // listado ya mapeado a cards
+  cards = signal<PokemonCard[]>([]);
+
+  // búsqueda local
+  query = signal('');
+
+  filtered = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    if (!q) return this.cards();
+    return this.cards().filter(p => p.name.includes(q) || String(p.id).includes(q));
+  });
+
+  limit = 24;
   offset = signal(0);
 
   constructor(private pokemonService: PokemonService) {
@@ -30,7 +42,11 @@ export class ListComponent {
 
     this.pokemonService.getPokemons(this.limit, this.offset()).subscribe({
       next: (res) => {
-        this.pokemons.set(res.results);
+        const mapped = res.results.map((p: PokemonListItem) => {
+          const id = Number(this.getIdFromUrl(p.url));
+          return { id, name: p.name };
+        });
+        this.cards.set(mapped);
         this.loading.set(false);
       },
       error: () => {
@@ -50,8 +66,15 @@ export class ListComponent {
     this.load();
   }
 
-  getIdFromUrl(url: string): string {
-    // url: https://pokeapi.co/api/v2/pokemon/1/
+  setQuery(value: string) {
+    this.query.set(value);
+  }
+
+  spriteUrl(id: number) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+  }
+
+  private getIdFromUrl(url: string): string {
     const parts = url.split('/').filter(Boolean);
     return parts[parts.length - 1];
   }

@@ -1,15 +1,29 @@
-<h2>Pokémons</h2>
+<div class="header">
+  <h2>Pokémons</h2>
+
+  <input
+    type="text"
+    placeholder="Buscar por nombre o id..."
+    (input)="setQuery($any($event.target).value)"
+  />
+</div>
 
 <p *ngIf="loading()">Cargando...</p>
 <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
 
-<ul *ngIf="!loading() && !errorMsg()">
-  <li *ngFor="let p of pokemons()">
-    <a [routerLink]="['/pokemons', getIdFromUrl(p.url)]">
-      {{ p.name }}
-    </a>
-  </li>
-</ul>
+<div class="grid" *ngIf="!loading() && !errorMsg()">
+  <a class="card pokemon" *ngFor="let p of filtered()" [routerLink]="['/pokemons', p.id]">
+    <img [src]="spriteUrl(p.id)" [alt]="p.name" loading="lazy" />
+    <div class="info">
+      <div class="name">{{ p.name }}</div>
+      <div class="muted">#{{ p.id }}</div>
+    </div>
+  </a>
+</div>
+
+<p class="muted" *ngIf="!loading() && !errorMsg() && filtered().length === 0">
+  No hay resultados.
+</p>
 
 <div class="pager">
   <button (click)="prevPage()" [disabled]="loading() || offset() === 0">Anterior</button>
