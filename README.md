@@ -1,59 +1,120 @@
-# PokedexSocial
+# 🧩 Pokedex Social
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Aplicación web desarrollada con Angular y Supabase que integra la API pública PokéAPI para consultar Pokémon, guardar favoritos y permitir comentarios con sistema de roles (user/admin).
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Tecnologías utilizadas
 
-```bash
-ng serve
+- Angular (Standalone Components)
+- TypeScript
+- Supabase (Auth + PostgreSQL + RLS)
+- PokéAPI (API pública)
+- SCSS
+- JWT Authentication
+- HttpInterceptor
+
+---
+
+## 🔐 Autenticación
+
+La aplicación utiliza autenticación mediante Supabase:
+
+- Registro e inicio de sesión con email y contraseña
+- JWT gestionado automáticamente
+- Guards para protección de rutas
+- Interceptor que añade el token a las peticiones
+- Sistema de roles (user/admin)
+
+---
+
+## 👤 Roles
+
+### Usuario normal
+- Ver listado y detalle de Pokémon
+- Añadir favoritos
+- Añadir comentarios
+- Editar y borrar sus propios comentarios
+
+### Administrador
+- Todo lo anterior
+- Editar y eliminar favoritos globales
+- Eliminar comentarios globales
+- Gestionar roles de usuarios
+- Panel de moderación de contenido
+
+---
+
+## 📦 Funcionalidades principales
+
+### 🔎 Pokémons
+- Listado paginado
+- Buscador por nombre o ID
+- Vista detalle con tipos y stats
+- Integración con PokéAPI
+
+### ⭐ Favoritos (CRUD)
+- Crear favorito
+- Ver favoritos propios
+- Editar favorito (admin)
+- Eliminar favorito (admin)
+- Protección con RLS
+
+### 💬 Comentarios (CRUD)
+- Listado en detalle del Pokémon
+- Crear comentario (autenticado)
+- Editar y eliminar propio comentario
+- Moderación admin
+
+### 🛠 Panel Admin
+- Gestión de usuarios (roles)
+- Gestión global de favoritos y comentarios
+
+---
+
+## 🛡 Seguridad
+
+- Row Level Security (RLS) en Supabase
+- Policies diferenciadas por rol
+- Función SQL `is_admin()`
+- Guards en frontend
+- Interceptor JWT
+
+---
+
+## 📁 Estructura del proyecto
+![Estructura del proyecto](image.png)
+
+---
+
+## ⚙️ Instalación local
+
+1. Clonar el repositorio:
+```
+git clone https://github.com/Annihilux/pokedex-social.git 
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+2. Instalar dependencias:
+```
+npm install 
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+3. Configurar Supabase en `environment.ts`
 
-```bash
-ng generate --help
+4. Ejecutar:
+```
+ng serve 
 ```
 
-## Building
+---
 
-To build the project run:
+## 🌍 API pública utilizada
 
-```bash
-ng build
-```
+- https://pokeapi.co/
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 📌 Autor
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Miguel Notario Díaz. \
+Proyecto desarrollado para la asignatura DWES.
