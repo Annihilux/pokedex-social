@@ -10,6 +10,10 @@ export class AuthService {
   private _session = signal<Session | null>(null);
   private _user = signal<User | null>(null);
   private _profile = signal<Profile | null>(null);
+  private initPromise: Promise<void>;
+  private _ready = signal(false);
+
+  ready = computed(() => this._ready());
 
   // Expuestos
   session = computed(() => this._session());
@@ -24,7 +28,7 @@ export class AuthService {
     private supabase: SupabaseService,
     private userService: UserService
   ) {
-    this.init();
+    this.initPromise = this.init();
 
     this.supabase.client.auth.onAuthStateChange((_event, session) => {
       this._session.set(session);
@@ -38,6 +42,11 @@ export class AuthService {
     this._session.set(data.session);
     this._user.set(data.session?.user ?? null);
     await this.loadProfileSafe();
+    this._ready.set(true);
+  }
+
+  whenReady(): Promise<void> {
+    return this.initPromise;
   }
 
   private async loadProfileSafe() {

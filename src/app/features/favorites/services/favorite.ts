@@ -40,4 +40,16 @@ export class FavoriteService {
   return data as Favorite;
   }
 
+  async update(id: number, payload: { note: string | null }): Promise<Favorite> {
+  const { data, error } = await this.supabase.client
+    .from('favorites')
+    .update(payload)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  return data as Favorite;
+  }
+
 }
