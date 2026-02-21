@@ -1,1 +1,79 @@
-/* You can add global styles to this file, and also import other style files */
+/* Base */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #fafafa;
+  color: #111;
+}
+
+/* Layout */
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Links */
+a {
+  color: inherit;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+/* Forms */
+label {
+  display: block;
+  margin: 10px 0 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  outline: none;
+  background: white;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #111;
+}
+
+/* Buttons */
+button, .btn {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn.primary, button.primary {
+  border-color: #111;
+  font-weight: 700;
+}
+
+.btn.ghost {
+  border-style: dashed;
+}
+
+/* Helpers */
+.muted { color: #666; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
