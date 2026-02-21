@@ -22,4 +22,23 @@ export class UserService {
     if (error) throw error;
     return data as Profile;
   }
+
+  async getAllProfiles(): Promise<Profile[]> {
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as Profile[];
+  }
+
+  async updateRole(userId: string, role: 'user' | 'admin'): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ role })
+      .eq('user_id', userId);
+
+    if (error) throw error;
+  }
 }

@@ -1,1 +1,35 @@
-<p>users works!</p>
+<h2>Admin - Usuarios</h2>
+
+<p *ngIf="loading()">Cargando...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<table *ngIf="!loading() && !errorMsg()">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let u of users()">
+      <td>{{ u.email }}</td>
+      <td>{{ u.role }}</td>
+      <td>
+        <button
+          type="button"
+          (click)="setRole(u, 'user')"
+          [disabled]="savingId() === u.user_id || u.role === 'user'">
+          Hacer user
+        </button>
+
+        <button
+          type="button"
+          (click)="setRole(u, 'admin')"
+          [disabled]="savingId() === u.user_id || u.role === 'admin'">
+          Hacer admin
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
