@@ -16,8 +16,8 @@ import { DetailComponent as FavoritesDetailComponent } from './features/favorite
 import { UsersComponent } from './features/admin/pages/users/users';
 import { ManageContentComponent } from './features/admin/pages/manage-content/manage-content';
 
-import { AuthGuard } from './core/guards/auth-guard';
-import { RoleGuard } from './core/guards/role-guard';
+import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
 
@@ -31,14 +31,14 @@ export const routes: Routes = [
   { path: 'pokemons/:id', component: PokemonDetailComponent },
 
   // Favoritos (requiere login)
-  { path: 'favorites', component: FavoritesListComponent, canActivate: [AuthGuard] },
-  { path: 'favorites/create', component: FavoritesCreateComponent, canActivate: [AuthGuard] },
-  { path: 'favorites/:id', component: FavoritesDetailComponent, canActivate: [AuthGuard] },
-  { path: 'favorites/edit/:id', component: FavoritesEditComponent, canActivate: [AuthGuard, RoleGuard] },
+  { path: 'favorites', component: FavoritesListComponent, canActivate: [authGuard] },
+  { path: 'favorites/create', component: FavoritesCreateComponent, canActivate: [authGuard] },
+  { path: 'favorites/:id', component: FavoritesDetailComponent, canActivate: [authGuard] },
+  { path: 'favorites/edit/:id', component: FavoritesEditComponent, canActivate: [authGuard, roleGuard] },
 
   // Admin
-  { path: 'admin/users', component: UsersComponent, canActivate: [AuthGuard, RoleGuard] },
-  { path: 'admin/content', component: ManageContentComponent, canActivate: [AuthGuard, RoleGuard] },
+  { path: 'admin/users', component: UsersComponent, canActivate: [authGuard, roleGuard] },
+  { path: 'admin/content', component: ManageContentComponent, canActivate: [authGuard, roleGuard] },
 
   // 404
   { path: '**', component: NotFoundComponent }
