@@ -1,1 +1,32 @@
-<p>navbar works!</p>
+<nav class="navbar">
+  <a routerLink="/" class="brand">pokedex-social</a>
+
+  <div class="links">
+    <!-- Públicos -->
+    <a routerLink="/">Home</a>
+    <a routerLink="/pokemons">Pokémons</a>
+
+    <!-- Privados -->
+    <a *ngIf="auth.isAuthenticated()" routerLink="/favorites">Favoritos</a>
+
+    <!-- Admin -->
+    <a *ngIf="auth.isAdmin()" routerLink="/admin/users">Admin: Usuarios</a>
+    <a *ngIf="auth.isAdmin()" routerLink="/admin/content">Admin: Contenido</a>
+  </div>
+
+  <div class="auth">
+    <!-- Si NO está logueado -->
+    <ng-container *ngIf="!auth.isAuthenticated(); else logged">
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Registro</a>
+    </ng-container>
+
+    <!-- Si está logueado -->
+    <ng-template #logged>
+      <span class="role">
+        {{ auth.profile()?.role }}
+      </span>
+      <button type="button" (click)="logout()">Logout</button>
+    </ng-template>
+  </div>
+</nav>
