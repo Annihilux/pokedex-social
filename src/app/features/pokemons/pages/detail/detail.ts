@@ -4,10 +4,15 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PokemonService } from '../../services/pokemon';
 import { PokemonDetail } from '../../../../shared/models/pokemon.model';
 
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../../../core/services/auth';
+import { CommentService } from '../../../comments/services/comment';
+import { Comment } from '../../../../shared/models/comment.model';
+
 @Component({
   selector: 'app-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './detail.html',
   styleUrl: './detail.scss'
 })
@@ -16,7 +21,26 @@ export class DetailComponent {
   errorMsg = signal<string | null>(null);
   pokemon = signal<PokemonDetail | null>(null);
 
-  constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
+  commentsLoading = signal(false);
+  commentsError = signal<string | null>(null);
+  comments = signal<Comment[]>([]);
+  commentSaving = signal(false);
+  commentError = signal<string | null>(null);
+  commentForm!: FormGroup;
+
+  private pokemonId!: number;
+
+  constructor(
+    private route: ActivatedRoute,
+    private pokemonService: PokemonService,
+    private fb: FormBuilder,
+    public auth: AuthService,
+    private commentService: CommentService
+  ) {
+    this.commentForm = this.fb.group({
+      content: ['', [Validators.required, Validators.minLength(2)]]
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.load(id);
     else {
@@ -32,6 +56,8 @@ export class DetailComponent {
     this.pokemonService.getPokemonById(id).subscribe({
       next: (p) => {
         this.pokemon.set(p);
+        this.pokemonId = p.id;
+        this.loadComments(p.id);
         this.loading.set(false);
       },
       error: () => {
@@ -40,4 +66,57 @@ export class DetailComponent {
       }
     });
   }
+
+  async loadComments(pokemonId: number) {
+    try {
+      this.commentsLoading.set(true);
+      this.commentsError.set(null);
+      const list = await this.commentService.getByPokemonId(pokemonId);
+      this.comments.set(list);
+    } catch (e: any) {
+      this.commentsError.set(e?.message ?? 'Error cargando comentarios.');
+    } finally {
+      this.commentsLoading.set(false);
+    }
+  }
+
+  async submitComment() {
+    this.commentError.set(null);
+
+    if (!this.auth.isAuthenticated()) {
+      this.commentError.set('Debes iniciar sesión para comentar.');
+      return;
+    }
+
+    if (this.commentForm.invalid) {
+      this.commentError.set('Escribe un comentario válido.');
+      return;
+    }
+
+    const userId = this.auth.user()?.id;
+    if (!userId) {
+      this.commentError.set('Sesión no válida.');
+      return;
+    }
+
+    try {
+      this.commentSaving.set(true);
+
+      const payload = {
+        user_id: userId,
+        pokemon_id: this.pokemonId,
+        content: String(this.commentForm.value.content).trim()
+      };
+
+      await this.commentService.create(payload);
+      this.commentForm.reset({ content: '' });
+
+      await this.loadComments(this.pokemonId);
+    } catch (e: any) {
+      this.commentError.set(e?.message ?? 'Error creando comentario.');
+    } finally {
+      this.commentSaving.set(false);
+    }
+  }
+
 }

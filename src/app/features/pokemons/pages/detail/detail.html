@@ -20,4 +20,45 @@
   <ul>
     <li *ngFor="let s of p.stats">{{ s.stat.name }}: {{ s.base_stat }}</li>
   </ul>
+
+  <hr />
+    <h3>Comentarios</h3>
+
+    <p *ngIf="commentsLoading()">Cargando comentarios...</p>
+    <p *ngIf="commentsError()">{{ commentsError() }}</p>
+
+    <ul *ngIf="!commentsLoading() && !commentsError()">
+    <li *ngFor="let c of comments()">
+        <small>{{ c.created_at }}</small>
+        <div>{{ c.content }}</div>
+    </li>
+    </ul>
+
+    <p *ngIf="!commentsLoading() && !commentsError() && comments().length === 0">
+    Sé el primero en comentar.
+    </p>
+
+    <hr />
+
+    <div *ngIf="auth.isAuthenticated(); else loginToComment">
+    <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+        <label>
+        Nuevo comentario
+        <input type="text" formControlName="content" />
+        </label>
+
+        <button type="submit" [disabled]="commentSaving()">
+        {{ commentSaving() ? 'Enviando...' : 'Comentar' }}
+        </button>
+
+        <p *ngIf="commentError()">{{ commentError() }}</p>
+    </form>
+    </div>
+
+    <ng-template #loginToComment>
+    <p>
+        Para comentar necesitas <a routerLink="/login">iniciar sesión</a>.
+    </p>
+    </ng-template>
+
 </div>
