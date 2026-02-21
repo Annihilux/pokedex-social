@@ -1,1 +1,41 @@
-<p>detail works!</p>
+<a routerLink="/favorites">← Volver</a>
+
+<p *ngIf="loading()">Cargando favorito...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<div *ngIf="!loading() && favorite() as f">
+  <h2>Favorito #{{ f.id }}</h2>
+
+  <p><strong>Pokémon:</strong> #{{ f.pokemon_id }} - {{ f.pokemon_name }}</p>
+  <p><strong>Nota:</strong> {{ f.note || '—' }}</p>
+
+  <hr />
+
+  <h3>Datos desde PokéAPI</h3>
+
+  <p *ngIf="pokemonLoading()">Cargando datos del Pokémon...</p>
+
+  <div *ngIf="!pokemonLoading() && pokemon() as p">
+    <h4>#{{ p.id }} - {{ p.name }}</h4>
+
+    <img *ngIf="p.sprites.front_default" [src]="p.sprites.front_default" [alt]="p.name" />
+
+    <h5>Tipos</h5>
+    <ul>
+      <li *ngFor="let t of p.types">{{ t.type.name }}</li>
+    </ul>
+
+    <h5>Stats</h5>
+    <ul>
+      <li *ngFor="let s of p.stats">{{ s.stat.name }}: {{ s.base_stat }}</li>
+    </ul>
+
+    <p>
+      <a [routerLink]="['/pokemons', p.id]">Ver detalle completo del Pokémon</a>
+    </p>
+  </div>
+
+  <p *ngIf="!pokemonLoading() && !pokemon()">
+    No se pudieron cargar los datos del Pokémon desde PokéAPI.
+  </p>
+</div>

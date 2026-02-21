@@ -28,4 +28,16 @@ export class FavoriteService {
     if (error) throw error;
     return data as Favorite;
   }
+
+  async getById(id: number): Promise<Favorite> {
+  const { data, error } = await this.supabase.client
+    .from('favorites')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data as Favorite;
+  }
+
 }
