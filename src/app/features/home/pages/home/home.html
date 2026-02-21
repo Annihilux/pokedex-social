@@ -1,1 +1,45 @@
-<p>home works!</p>
+<section class="hero">
+  <div class="hero-content">
+    <h1>Pokédex Social</h1>
+    <p>
+      Explora Pokémon con PokéAPI, guarda tus favoritos y comparte comentarios.
+      Acceso con autenticación JWT mediante Supabase.
+    </p>
+
+    <div class="actions" *ngIf="!auth.isAuthenticated(); else logged">
+      <a class="btn primary" routerLink="/register">Crear cuenta</a>
+      <a class="btn" routerLink="/login">Iniciar sesión</a>
+      <a class="btn ghost" routerLink="/pokemons">Explorar Pokémons</a>
+    </div>
+
+    <ng-template #logged>
+      <div class="actions">
+        <a class="btn primary" routerLink="/dashboard">Ir al Dashboard</a>
+        <a class="btn" routerLink="/favorites">Mis Favoritos</a>
+        <a class="btn ghost" routerLink="/pokemons">Explorar Pokémons</a>
+      </div>
+
+      <p class="meta">
+        Sesión iniciada como: <strong>{{ auth.user()?.email }}</strong> ·
+        Rol: <strong>{{ auth.profile()?.role }}</strong>
+      </p>
+    </ng-template>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card">
+    <h3>API Pública</h3>
+    <p>Datos en tiempo real desde PokéAPI (listado y detalle).</p>
+  </div>
+
+  <div class="card">
+    <h3>Favoritos</h3>
+    <p>Guarda Pokémon, añade notas y gestión por rol admin.</p>
+  </div>
+
+  <div class="card">
+    <h3>Comentarios</h3>
+    <p>Comenta cada Pokémon y modera con permisos de administrador.</p>
+  </div>
+</section>
