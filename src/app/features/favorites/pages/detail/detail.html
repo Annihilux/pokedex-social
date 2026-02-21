@@ -4,10 +4,19 @@
 <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
 
 <div *ngIf="!loading() && favorite() as f">
+
+
+<div *ngIf="isAdmin">
+  <a [routerLink]="['/favorites/edit', f.id]">Editar (admin)</a>
+  <button type="button" (click)="remove()">Eliminar (admin)</button>
+</div>
+
   <h2>Favorito #{{ f.id }}</h2>
 
   <p><strong>Pokémon:</strong> #{{ f.pokemon_id }} - {{ f.pokemon_name }}</p>
   <p><strong>Nota:</strong> {{ f.note || '—' }}</p>
+
+  
 
   <hr />
 

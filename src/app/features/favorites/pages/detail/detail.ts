@@ -8,6 +8,9 @@ import { Favorite } from '../../../../shared/models/favorite.model';
 import { PokemonService } from '../../../pokemons/services/pokemon';
 import { PokemonDetail } from '../../../../shared/models/pokemon.model';
 
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth';
+
 @Component({
   selector: 'app-detail',
   standalone: true,
@@ -15,6 +18,8 @@ import { PokemonDetail } from '../../../../shared/models/pokemon.model';
   templateUrl: './detail.html',
   styleUrl: './detail.scss'
 })
+
+
 export class DetailComponent {
   loading = signal(true);
   errorMsg = signal<string | null>(null);
@@ -28,7 +33,9 @@ export class DetailComponent {
   constructor(
     private route: ActivatedRoute,
     private favoritesService: FavoriteService,
-    private pokemonService: PokemonService
+    private pokemonService: PokemonService,
+    private auth: AuthService,
+    private router: Router
   ) {
     const idParam = this.route.snapshot.paramMap.get('id');
     const id = Number(idParam);
@@ -40,6 +47,11 @@ export class DetailComponent {
     }
 
     this.load(id);
+
+  }
+
+  get isAdmin() {
+    return this.auth.isAdmin();
   }
 
   async load(id: number) {
@@ -73,4 +85,20 @@ export class DetailComponent {
       }
     });
   }
+
+  async remove() {
+    const fav = this.favorite();
+    if (!fav) return;
+
+    const ok = confirm(`¿Eliminar el favorito #${fav.id} (Pokémon ${fav.pokemon_name})?`);
+    if (!ok) return;
+
+    try {
+      await this.favoritesService.delete(fav.id);
+      await this.router.navigate(['/favorites']);
+    } catch (e: any) {
+      this.errorMsg.set(e?.message ?? 'Error eliminando favorito.');
+    }
+  }
+
 }

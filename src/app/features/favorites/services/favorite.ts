@@ -52,4 +52,13 @@ export class FavoriteService {
   return data as Favorite;
   }
 
+  async delete(id: number): Promise<void> {
+  const { error } = await this.supabase.client
+    .from('favorites')
+    .delete()
+    .eq('id', id);
+
+    if (error) throw error;
+  }
+
 }
