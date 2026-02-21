@@ -1,59 +1,74 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { User } from '@supabase/supabase-js';
+import { UserService } from './user';
+import { Session, User } from '@supabase/supabase-js';
+import { Profile } from '../../shared/models/user.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  constructor(private supabaseService: SupabaseService) {}
+  private _session = signal<Session | null>(null);
+  private _user = signal<User | null>(null);
+  private _profile = signal<Profile | null>(null);
 
-  // Registro
+  // Expuestos
+  session = computed(() => this._session());
+  user = computed(() => this._user());
+  profile = computed(() => this._profile());
+
+  // Derivados (útiles para navbar/guards)
+  isAuthenticated = computed(() => !!this._session());
+  isAdmin = computed(() => this._profile()?.role === 'admin');
+
+  constructor(
+    private supabase: SupabaseService,
+    private userService: UserService
+  ) {
+    this.init();
+
+    this.supabase.client.auth.onAuthStateChange((_event, session) => {
+      this._session.set(session);
+      this._user.set(session?.user ?? null);
+      this.loadProfileSafe();
+    });
+  }
+
+  private async init() {
+    const { data } = await this.supabase.client.auth.getSession();
+    this._session.set(data.session);
+    this._user.set(data.session?.user ?? null);
+    await this.loadProfileSafe();
+  }
+
+  private async loadProfileSafe() {
+    try {
+      if (!this._user()) {
+        this._profile.set(null);
+        return;
+      }
+      const profile = await this.userService.getMyProfile();
+      this._profile.set(profile);
+    } catch {
+      // Evita romper la app si aún no existe o si falla momentáneamente
+      this._profile.set(null);
+    }
+  }
+
   async register(email: string, password: string) {
-    const { data, error } = await this.supabaseService.client.auth.signUp({
-      email,
-      password
-    });
-
+    const { data, error } = await this.supabase.client.auth.signUp({ email, password });
     if (error) throw error;
     return data;
   }
 
-  // Login
   async login(email: string, password: string) {
-    const { data, error } = await this.supabaseService.client.auth.signInWithPassword({
-      email,
-      password
-    });
-
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   }
 
-  // Logout
   async logout() {
-    const { error } = await this.supabaseService.client.auth.signOut();
+    const { error } = await this.supabase.client.auth.signOut();
     if (error) throw error;
+    this._profile.set(null);
   }
-
-  // Usuario actual
-  async getCurrentUser(): Promise<User | null> {
-    const { data } = await this.supabaseService.client.auth.getUser();
-    return data.user;
-  }
-
-  // Obtener sesión actual (JWT)
-  async getSession() {
-    const { data } = await this.supabaseService.client.auth.getSession();
-    return data.session;
-  }
-
-  // Escuchar cambios de sesión
-  onAuthStateChange(callback: (event: string, session: any) => void) {
-    this.supabaseService.client.auth.onAuthStateChange((event, session) => {
-      callback(event, session);
-    });
-  }
-
 }
