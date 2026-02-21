@@ -1,1 +1,17 @@
-<p>list works!</p>
+<h2>Pokémons</h2>
+
+<p *ngIf="loading()">Cargando...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<ul *ngIf="!loading() && !errorMsg()">
+  <li *ngFor="let p of pokemons()">
+    <a [routerLink]="['/pokemons', getIdFromUrl(p.url)]">
+      {{ p.name }}
+    </a>
+  </li>
+</ul>
+
+<div class="pager">
+  <button (click)="prevPage()" [disabled]="loading() || offset() === 0">Anterior</button>
+  <button (click)="nextPage()" [disabled]="loading()">Siguiente</button>
+</div>

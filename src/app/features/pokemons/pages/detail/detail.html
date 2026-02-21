@@ -1,1 +1,23 @@
-<p>detail works!</p>
+<a routerLink="/pokemons">← Volver</a>
+
+<p *ngIf="loading()">Cargando detalle...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<div *ngIf="!loading() && pokemon() as p">
+  <h2>#{{ p.id }} - {{ p.name }}</h2>
+
+  <img *ngIf="p.sprites.front_default" [src]="p.sprites.front_default" [alt]="p.name" />
+
+  <p><strong>Altura:</strong> {{ p.height }}</p>
+  <p><strong>Peso:</strong> {{ p.weight }}</p>
+
+  <h3>Tipos</h3>
+  <ul>
+    <li *ngFor="let t of p.types">{{ t.type.name }}</li>
+  </ul>
+
+  <h3>Stats</h3>
+  <ul>
+    <li *ngFor="let s of p.stats">{{ s.stat.name }}: {{ s.base_stat }}</li>
+  </ul>
+</div>
