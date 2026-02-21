@@ -1,1 +1,35 @@
-<p>register works!</p>
+<h2>Registro</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    Nombre
+    <input type="text" formControlName="name" />
+  </label>
+
+  <label>
+    Email
+    <input type="email" formControlName="email" />
+  </label>
+
+  <label>
+    Contraseña
+    <input type="password" formControlName="password" />
+  </label>
+
+  <label>
+    Confirmar contraseña
+    <input type="password" formControlName="confirmPassword" />
+  </label>
+
+  <button type="submit" [disabled]="loading()">
+    {{ loading() ? 'Registrando...' : 'Registrarse' }}
+  </button>
+
+  <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+  <p *ngIf="successMsg()">{{ successMsg() }}</p>
+</form>
+
+<p>
+  ¿Ya tienes cuenta?
+  <a routerLink="/login">Inicia sesión</a>
+</p>
