@@ -1,1 +1,25 @@
-<p>create works!</p>
+<h2>Añadir Favorito</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    Pokemon ID
+    <input type="number" formControlName="pokemon_id" />
+  </label>
+
+  <label>
+    Nombre
+    <input type="text" formControlName="pokemon_name" />
+  </label>
+
+  <label>
+    Nota (opcional)
+    <input type="text" formControlName="note" />
+  </label>
+
+  <button type="submit" [disabled]="loading()">
+    {{ loading() ? 'Guardando...' : 'Guardar' }}
+  </button>
+
+  <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+  <p *ngIf="successMsg()">{{ successMsg() }}</p>
+</form>

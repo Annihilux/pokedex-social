@@ -1,1 +1,19 @@
-<p>list works!</p>
+<h2>Mis Favoritos</h2>
+
+<a routerLink="/favorites/create">+ Añadir favorito</a>
+
+<p *ngIf="loading()">Cargando...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<ul *ngIf="!loading() && !errorMsg()">
+  <li *ngFor="let f of favorites()">
+    <a [routerLink]="['/favorites', f.id]">
+      #{{ f.pokemon_id }} - {{ f.pokemon_name }}
+    </a>
+    <span *ngIf="f.note"> — {{ f.note }}</span>
+  </li>
+</ul>
+
+<p *ngIf="!loading() && !errorMsg() && favorites().length === 0">
+  No tienes favoritos todavía.
+</p>
