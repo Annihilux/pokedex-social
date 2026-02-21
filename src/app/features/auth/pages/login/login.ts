@@ -42,7 +42,7 @@ export class LoginComponent {
     try {
       this.loading.set(true);
       await this.auth.login(email, password);
-      await this.router.navigate(['/']);
+      await this.router.navigate(['/dashboard']);
     } catch (e: any) {
       this.errorMsg.set(e?.message ?? 'Error en el login.');
     } finally {
