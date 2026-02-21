@@ -1,25 +1,48 @@
-<a routerLink="/pokemons">← Volver</a>
+<a class="back" routerLink="/pokemons">← Volver</a>
 
 <p *ngIf="loading()">Cargando detalle...</p>
 <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
 
-<div *ngIf="!loading() && pokemon() as p">
-  <h2>#{{ p.id }} - {{ p.name }}</h2>
+<div *ngIf="!loading() && pokemon() as p" class="detail card">
+  <div class="top">
+    <div>
+      <h2 class="title">
+        <span class="muted">#{{ p.id }}</span>
+        {{ p.name }}
+      </h2>
 
-  <img *ngIf="p.sprites.front_default" [src]="p.sprites.front_default" [alt]="p.name" />
+      <div class="badges">
+        <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+      </div>
 
-  <p><strong>Altura:</strong> {{ p.height }}</p>
-  <p><strong>Peso:</strong> {{ p.weight }}</p>
+      <p class="muted">
+        Altura: {{ p.height }} · Peso: {{ p.weight }}
+      </p>
 
-  <h3>Tipos</h3>
-  <ul>
-    <li *ngFor="let t of p.types">{{ t.type.name }}</li>
-  </ul>
+      <div class="actions row">
+        <a class="btn" [routerLink]="['/pokemons', p.id]">URL actual</a>
+        <a class="btn" routerLink="/favorites/create">Añadir a favoritos</a>
+      </div>
+    </div>
+
+    <img
+      class="sprite"
+      *ngIf="p.sprites.front_default"
+      [src]="p.sprites.front_default"
+      [alt]="p.name"
+    />
+  </div>
+
+  <hr />
 
   <h3>Stats</h3>
-  <ul>
-    <li *ngFor="let s of p.stats">{{ s.stat.name }}: {{ s.base_stat }}</li>
-  </ul>
+    <div class="stats">
+      <div class="stat" *ngFor="let s of p.stats">
+        <div class="name">{{ s.stat.name }}</div>
+        <div class="value">{{ s.base_stat }}</div>
+      </div>
+    </div>
+  </div>
 
   <hr />
     <h3>Comentarios</h3>
@@ -62,24 +85,22 @@
     <hr />
 
     <div *ngIf="auth.isAuthenticated(); else loginToComment">
-    <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
-        <label>
-        Nuevo comentario
-        <input type="text" formControlName="content" />
-        </label>
+      <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+          <label>
+          Nuevo comentario
+          <input type="text" formControlName="content" />
+          </label>
 
-        <button type="submit" [disabled]="commentSaving()">
-        {{ commentSaving() ? 'Enviando...' : 'Comentar' }}
-        </button>
+          <button type="submit" [disabled]="commentSaving()">
+          {{ commentSaving() ? 'Enviando...' : 'Comentar' }}
+          </button>
 
-        <p *ngIf="commentError()">{{ commentError() }}</p>
-    </form>
+          <p *ngIf="commentError()">{{ commentError() }}</p>
+      </form>
     </div>
 
-    <ng-template #loginToComment>
+  <ng-template #loginToComment>
     <p>
         Para comentar necesitas <a routerLink="/login">iniciar sesión</a>.
     </p>
-    </ng-template>
-
-</div>
+  </ng-template>
