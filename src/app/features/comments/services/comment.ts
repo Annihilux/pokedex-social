@@ -48,4 +48,15 @@ export class CommentService {
 
     if (error) throw error;
   }
+
+  async getAllGlobal(): Promise<Comment[]> {
+    const { data, error } = await this.supabase.client
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as Comment[];
+  }
+  
 }

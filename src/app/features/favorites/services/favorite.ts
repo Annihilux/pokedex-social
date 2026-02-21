@@ -61,4 +61,14 @@ export class FavoriteService {
     if (error) throw error;
   }
 
+  async getAllGlobal(): Promise<Favorite[]> {
+    const { data, error } = await this.supabase.client
+      .from('favorites')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as Favorite[];
+  }
+
 }

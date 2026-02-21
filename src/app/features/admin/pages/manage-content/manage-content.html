@@ -1,1 +1,33 @@
-<p>manage-content works!</p>
+<h2>Admin - Gestión de Contenido</h2>
+
+<p *ngIf="loading()">Cargando...</p>
+<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+<div *ngIf="!loading() && !errorMsg()">
+  <h3>Favoritos (global)</h3>
+  <ul>
+    <li *ngFor="let f of favorites()">
+      <a [routerLink]="['/favorites', f.id]">
+        #{{ f.id }} — {{ f.pokemon_name }} (pokemon_id {{ f.pokemon_id }})
+      </a>
+      <button type="button" (click)="deleteFavorite(f)">Eliminar</button>
+      <a [routerLink]="['/favorites/edit', f.id]">Editar</a>
+    </li>
+  </ul>
+
+  <p *ngIf="favorites().length === 0">No hay favoritos.</p>
+
+  <hr />
+
+  <h3>Comentarios (global)</h3>
+  <ul>
+    <li *ngFor="let c of comments()">
+      <span>#{{ c.id }} — pokemon_id {{ c.pokemon_id }}:</span>
+      <span>{{ c.content }}</span>
+      <button type="button" (click)="deleteComment(c)">Eliminar</button>
+      <a [routerLink]="['/pokemons', c.pokemon_id]">Ver Pokémon</a>
+    </li>
+  </ul>
+
+  <p *ngIf="comments().length === 0">No hay comentarios.</p>
+</div>
