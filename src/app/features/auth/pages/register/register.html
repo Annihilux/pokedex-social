@@ -1,35 +1,36 @@
-<h2>Registro</h2>
+<div class="card auth-card">
+  <h2>Registro</h2>
+  <p class="muted">Crea tu cuenta para guardar favoritos y participar con comentarios.</p>
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    Nombre
-    <input type="text" formControlName="name" />
-  </label>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" formControlName="name" placeholder="Tu nombre" />
+    </div>
 
-  <label>
-    Email
-    <input type="email" formControlName="email" />
-  </label>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" formControlName="email" placeholder="tu@email.com" />
+    </div>
 
-  <label>
-    Contraseña
-    <input type="password" formControlName="password" />
-  </label>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+    </div>
 
-  <label>
-    Confirmar contraseña
-    <input type="password" formControlName="confirmPassword" />
-  </label>
+    <div class="field">
+      <label>Confirmar contraseña</label>
+      <input type="password" formControlName="confirmPassword" placeholder="Repite la contraseña" />
+    </div>
 
-  <button type="submit" [disabled]="loading()">
-    {{ loading() ? 'Registrando...' : 'Registrarse' }}
-  </button>
+    <div class="actions">
+      <button class="primary" type="submit" [disabled]="loading()">
+        {{ loading() ? 'Registrando...' : 'Registrarse' }}
+      </button>
+      <a class="btn" routerLink="/login">Ya tengo cuenta</a>
+    </div>
 
-  <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-  <p *ngIf="successMsg()">{{ successMsg() }}</p>
-</form>
-
-<p>
-  ¿Ya tienes cuenta?
-  <a routerLink="/login">Inicia sesión</a>
-</p>
+    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+    <p *ngIf="successMsg()">{{ successMsg() }}</p>
+  </form>
+</div>

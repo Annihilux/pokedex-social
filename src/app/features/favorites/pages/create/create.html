@@ -1,25 +1,35 @@
-<h2>Añadir Favorito</h2>
+<a class="back" routerLink="/favorites">← Volver</a>
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    Pokemon ID
-    <input type="number" formControlName="pokemon_id" />
-  </label>
+<div class="card">
+  <h2>Añadir Favorito</h2>
+  <p class="muted">Guarda un Pokémon por su ID y añade una nota opcional.</p>
 
-  <label>
-    Nombre
-    <input type="text" formControlName="pokemon_name" />
-  </label>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="row">
+      <div class="field">
+        <label>Pokémon ID</label>
+        <input type="number" formControlName="pokemon_id" placeholder="Ej: 25" />
+      </div>
 
-  <label>
-    Nota (opcional)
-    <input type="text" formControlName="note" />
-  </label>
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" formControlName="pokemon_name" placeholder="Ej: pikachu" />
+      </div>
+    </div>
 
-  <button type="submit" [disabled]="loading()">
-    {{ loading() ? 'Guardando...' : 'Guardar' }}
-  </button>
+    <div class="field">
+      <label>Nota (opcional)</label>
+      <input type="text" formControlName="note" placeholder="Ej: Muy rápido, tipo eléctrico..." />
+    </div>
 
-  <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-  <p *ngIf="successMsg()">{{ successMsg() }}</p>
-</form>
+    <div class="actions">
+      <button class="primary" type="submit" [disabled]="loading()">
+        {{ loading() ? 'Guardando...' : 'Guardar' }}
+      </button>
+      <a class="btn" routerLink="/favorites">Cancelar</a>
+    </div>
+
+    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+    <p *ngIf="successMsg()">{{ successMsg() }}</p>
+  </form>
+</div>

@@ -1,47 +1,60 @@
-<a routerLink="/favorites">← Volver</a>
+<a class="back" routerLink="/favorites">← Volver</a>
 
 <p *ngIf="loading()">Cargando favorito...</p>
 <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
 
-<div *ngIf="!loading() && favorite() as f">
+<div *ngIf="!loading() && favorite() as f" class="card">
+  <div class="header">
+    <div>
+      <h2 class="title">Favorito #{{ f.id }}</h2>
+      <p class="muted">
+        Pokémon: <strong>#{{ f.pokemon_id }}</strong> ·
+        <strong class="cap">{{ f.pokemon_name }}</strong>
+      </p>
+    </div>
 
+    <div class="admin-actions" *ngIf="isAdmin">
+      <a class="btn" [routerLink]="['/favorites/edit', f.id]">Editar</a>
+      <button type="button" (click)="remove()">Eliminar</button>
+    </div>
+  </div>
 
-<div *ngIf="isAdmin">
-  <a [routerLink]="['/favorites/edit', f.id]">Editar (admin)</a>
-  <button type="button" (click)="remove()">Eliminar (admin)</button>
-</div>
-
-  <h2>Favorito #{{ f.id }}</h2>
-
-  <p><strong>Pokémon:</strong> #{{ f.pokemon_id }} - {{ f.pokemon_name }}</p>
-  <p><strong>Nota:</strong> {{ f.note || '—' }}</p>
-
-  
+  <div class="note-block">
+    <h3>Nota</h3>
+    <p>{{ f.note || '—' }}</p>
+  </div>
 
   <hr />
 
   <h3>Datos desde PokéAPI</h3>
-
   <p *ngIf="pokemonLoading()">Cargando datos del Pokémon...</p>
 
-  <div *ngIf="!pokemonLoading() && pokemon() as p">
-    <h4>#{{ p.id }} - {{ p.name }}</h4>
+  <div *ngIf="!pokemonLoading() && pokemon() as p" class="poke">
+    <img
+      class="sprite"
+      *ngIf="p.sprites.front_default"
+      [src]="p.sprites.front_default"
+      [alt]="p.name"
+    />
 
-    <img *ngIf="p.sprites.front_default" [src]="p.sprites.front_default" [alt]="p.name" />
+    <div class="poke-info">
+      <h4 class="cap">#{{ p.id }} - {{ p.name }}</h4>
 
-    <h5>Tipos</h5>
-    <ul>
-      <li *ngFor="let t of p.types">{{ t.type.name }}</li>
-    </ul>
+      <div class="types">
+        <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+      </div>
 
-    <h5>Stats</h5>
-    <ul>
-      <li *ngFor="let s of p.stats">{{ s.stat.name }}: {{ s.base_stat }}</li>
-    </ul>
+      <div class="stats">
+        <div class="stat" *ngFor="let s of p.stats">
+          <span class="cap">{{ s.stat.name }}</span>
+          <strong>{{ s.base_stat }}</strong>
+        </div>
+      </div>
 
-    <p>
-      <a [routerLink]="['/pokemons', p.id]">Ver detalle completo del Pokémon</a>
-    </p>
+      <p class="muted">
+        <a [routerLink]="['/pokemons', p.id]">Ver detalle completo del Pokémon</a>
+      </p>
+    </div>
   </div>
 
   <p *ngIf="!pokemonLoading() && !pokemon()">

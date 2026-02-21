@@ -1,24 +1,25 @@
-<h2>Login</h2>
+<div class="card auth-card">
+  <h2>Login</h2>
+  <p class="muted">Accede para guardar favoritos y comentar.</p>
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    Email
-    <input type="email" formControlName="email" />
-  </label>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label>Email</label>
+      <input type="email" formControlName="email" placeholder="tu@email.com" />
+    </div>
 
-  <label>
-    Contraseña
-    <input type="password" formControlName="password" />
-  </label>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" formControlName="password" placeholder="••••••••" />
+    </div>
 
-  <button type="submit" [disabled]="loading()">
-    {{ loading() ? 'Entrando...' : 'Entrar' }}
-  </button>
+    <div class="actions">
+      <button class="primary" type="submit" [disabled]="loading()">
+        {{ loading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+      <a class="btn" routerLink="/register">Crear cuenta</a>
+    </div>
 
-  <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-</form>
-
-<p>
-  ¿No tienes cuenta?
-  <a routerLink="/register">Regístrate</a>
-</p>
+    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+  </form>
+</div>
