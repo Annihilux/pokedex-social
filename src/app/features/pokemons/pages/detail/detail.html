@@ -28,10 +28,31 @@
     <p *ngIf="commentsError()">{{ commentsError() }}</p>
 
     <ul *ngIf="!commentsLoading() && !commentsError()">
-    <li *ngFor="let c of comments()">
+      <li *ngFor="let c of comments()">
         <small>{{ c.created_at }}</small>
-        <div>{{ c.content }}</div>
-    </li>
+
+        <!-- Modo edición -->
+        <div *ngIf="editingCommentId() === c.id; else viewMode">
+          <form [formGroup]="editForm" (ngSubmit)="saveEdit(c)">
+            <input type="text" formControlName="content" />
+            <button type="submit">Guardar</button>
+            <button type="button" (click)="cancelEdit()">Cancelar</button>
+          </form>
+          <p *ngIf="editError()">{{ editError() }}</p>
+        </div>
+
+        <!-- Modo vista -->
+        <ng-template #viewMode>
+          <div>{{ c.content }}</div>
+
+          <div *ngIf="canManageComment(c)">
+            <button type="button" (click)="startEdit(c)">Editar</button>
+            <button type="button" (click)="removeComment(c)">Eliminar</button>
+          </div>
+        </ng-template>
+
+        <hr />
+      </li>
     </ul>
 
     <p *ngIf="!commentsLoading() && !commentsError() && comments().length === 0">

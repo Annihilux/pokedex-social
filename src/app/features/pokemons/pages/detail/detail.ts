@@ -28,6 +28,11 @@ export class DetailComponent {
   commentError = signal<string | null>(null);
   commentForm!: FormGroup;
 
+  editingCommentId = signal<number | null>(null);
+  editError = signal<string | null>(null);
+
+  editForm!: FormGroup;
+
   private pokemonId!: number;
 
   constructor(
@@ -38,6 +43,10 @@ export class DetailComponent {
     private commentService: CommentService
   ) {
     this.commentForm = this.fb.group({
+      content: ['', [Validators.required, Validators.minLength(2)]]
+    });
+
+    this.editForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(2)]]
     });
 
@@ -116,6 +125,62 @@ export class DetailComponent {
       this.commentError.set(e?.message ?? 'Error creando comentario.');
     } finally {
       this.commentSaving.set(false);
+    }
+  }
+
+  startEdit(c: Comment) {
+    this.editError.set(null);
+    this.editingCommentId.set(c.id);
+    this.editForm.patchValue({ content: c.content });
+  }
+
+  cancelEdit() {
+    this.editingCommentId.set(null);
+    this.editError.set(null);
+  }
+
+  canManageComment(c: Comment): boolean {
+    const myId = this.auth.user()?.id;
+    return this.auth.isAdmin() || (!!myId && c.user_id === myId);
+  }
+
+  async saveEdit(c: Comment) {
+    this.editError.set(null);
+
+    if (!this.canManageComment(c)) {
+      this.editError.set('No tienes permisos para editar este comentario.');
+      return;
+    }
+
+    if (this.editForm.invalid) {
+      this.editError.set('Comentario inválido.');
+      return;
+    }
+
+    try {
+      const content = String(this.editForm.value.content).trim();
+      await this.commentService.update(c.id, { content });
+      this.editingCommentId.set(null);
+      await this.loadComments(this.pokemonId);
+    } catch (e: any) {
+      this.editError.set(e?.message ?? 'Error editando comentario.');
+    }
+  }
+
+  async removeComment(c: Comment) {
+    if (!this.canManageComment(c)) {
+      alert('No tienes permisos para borrar este comentario.');
+      return;
+    }
+
+    const ok = confirm('¿Eliminar este comentario?');
+    if (!ok) return;
+
+    try {
+      await this.commentService.delete(c.id);
+      await this.loadComments(this.pokemonId);
+    } catch (e: any) {
+      alert(e?.message ?? 'Error eliminando comentario.');
     }
   }
 

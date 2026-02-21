@@ -27,4 +27,25 @@ export class CommentService {
     if (error) throw error;
     return data as Comment;
   }
+
+  async update(id: number, payload: { content: string }): Promise<Comment> {
+    const { data, error } = await this.supabase.client
+      .from('comments')
+      .update(payload)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data as Comment;
+  }
+
+  async delete(id: number): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('comments')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
 }
