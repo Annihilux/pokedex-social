@@ -30,7 +30,11 @@
       <a class="btn" routerLink="/login">Ya tengo cuenta</a>
     </div>
 
-    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-    <p *ngIf="successMsg()">{{ successMsg() }}</p>
+    @if (errorMsg()) {
+      <p>{{ errorMsg() }}</p>
+    }
+    @if (successMsg()) {
+      <p>{{ successMsg() }}</p>
+    }
   </form>
 </div>

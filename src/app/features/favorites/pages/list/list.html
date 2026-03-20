@@ -1,27 +1,35 @@
 <div class="header">
   <h2>Mis Favoritos</h2>
-  <a class="btn primary" routerLink="/favorites/create">+ Añadir favorito</a>
+  <a class="btn primary" routerLink="/favorites/create">+ A&ntilde;adir favorito</a>
 </div>
 
-<p *ngIf="loading()">Cargando...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando...</p>
+}
 
-<div class="grid" *ngIf="!loading() && !errorMsg()">
-  <a class="card fav" *ngFor="let f of favorites()" [routerLink]="['/favorites', f.id]">
-    <div class="top">
-      <div class="name">#{{ f.pokemon_id }} · {{ f.pokemon_name }}</div>
-      <div class="muted">Fav ID: {{ f.id }}</div>
-    </div>
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
 
-    <div class="note" *ngIf="f.note; else noNote">
-      {{ f.note }}
-    </div>
-    <ng-template #noNote>
-      <div class="muted">Sin nota</div>
-    </ng-template>
-  </a>
-</div>
+@if (!loading() && !errorMsg()) {
+  <div class="grid">
+    <a class="card fav" *ngFor="let f of favorites()" [routerLink]="['/favorites', f.id]">
+      <div class="top">
+        <div class="name">#{{ f.pokemon_id }} &middot; {{ f.pokemon_name }}</div>
+        <div class="muted">Fav ID: {{ f.id }}</div>
+      </div>
 
-<p class="muted" *ngIf="!loading() && !errorMsg() && favorites().length === 0">
-  No tienes favoritos todavía.
-</p>
+      @if (f.note) {
+        <div class="note">
+          {{ f.note }}
+        </div>
+      } @else {
+        <div class="muted">Sin nota</div>
+      }
+    </a>
+  </div>
+}
+
+@if (!loading() && !errorMsg() && favorites().length === 0) {
+  <p class="muted">No tienes favoritos todav&iacute;a.</p>
+}

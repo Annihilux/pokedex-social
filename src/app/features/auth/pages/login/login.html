@@ -20,6 +20,8 @@
       <a class="btn" routerLink="/register">Crear cuenta</a>
     </div>
 
-    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+    @if (errorMsg()) {
+      <p>{{ errorMsg() }}</p>
+    }
   </form>
 </div>

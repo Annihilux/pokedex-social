@@ -1,23 +1,34 @@
-<a routerLink="/favorites">← Volver</a>
+<a routerLink="/favorites">&#8592; Volver</a>
 
-<p *ngIf="loading()">Cargando...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando...</p>
+}
 
-<div *ngIf="!loading() && favorite() as f">
-  <h2>Editar favorito #{{ f.id }}</h2>
-  <p><strong>Pokémon:</strong> #{{ f.pokemon_id }} - {{ f.pokemon_name }}</p>
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
 
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <label>
-      Nota (solo admin)
-      <input type="text" formControlName="note" />
-    </label>
+@if (!loading() && favorite(); as f) {
+  <div>
+    <h2>Editar favorito #{{ f.id }}</h2>
+    <p><strong>Pok&eacute;mon:</strong> #{{ f.pokemon_id }} - {{ f.pokemon_name }}</p>
 
-    <button type="submit" [disabled]="saving()">
-      {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
-    </button>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Nota (solo admin)
+        <input type="text" formControlName="note" />
+      </label>
 
-    <p *ngIf="successMsg()">{{ successMsg() }}</p>
-    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-  </form>
-</div>
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+
+      @if (successMsg()) {
+        <p>{{ successMsg() }}</p>
+      }
+      @if (errorMsg()) {
+        <p>{{ errorMsg() }}</p>
+      }
+    </form>
+  </div>
+}

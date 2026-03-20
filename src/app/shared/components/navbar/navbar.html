@@ -4,22 +4,26 @@
 
     <div class="links">
       <a routerLink="/">Home</a>
-      <a routerLink="/pokemons">Pokémons</a>
-      <a *ngIf="auth.isAuthenticated()" routerLink="/favorites">Favoritos</a>
-      <a *ngIf="auth.isAdmin()" routerLink="/admin/users">Admin: Usuarios</a>
-      <a *ngIf="auth.isAdmin()" routerLink="/admin/content">Admin: Contenido</a>
+      <a routerLink="/pokemons">Pok&eacute;mons</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/favorites">Favoritos</a>
+      }
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin/users">Admin: Usuarios</a>
+      }
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin/content">Admin: Contenido</a>
+      }
     </div>
 
     <div class="auth">
-      <ng-container *ngIf="!auth.isAuthenticated(); else logged">
+      @if (!auth.isAuthenticated()) {
         <a routerLink="/login">Login</a>
         <a routerLink="/register">Registro</a>
-      </ng-container>
-
-      <ng-template #logged>
+      } @else {
         <span class="role">{{ auth.profile()?.role }}</span>
         <button type="button" (click)="logout()">Logout</button>
-      </ng-template>
+      }
     </div>
   </div>
 </nav>

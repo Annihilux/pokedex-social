@@ -1,63 +1,77 @@
-<a class="back" routerLink="/favorites">← Volver</a>
+<a class="back" routerLink="/favorites">&#8592; Volver</a>
 
-<p *ngIf="loading()">Cargando favorito...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando favorito...</p>
+}
 
-<div *ngIf="!loading() && favorite() as f" class="card">
-  <div class="header">
-    <div>
-      <h2 class="title">Favorito #{{ f.id }}</h2>
-      <p class="muted">
-        Pokémon: <strong>#{{ f.pokemon_id }}</strong> ·
-        <strong class="cap">{{ f.pokemon_name }}</strong>
-      </p>
-    </div>
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
 
-    <div class="admin-actions" *ngIf="isAdmin">
-      <a class="btn" [routerLink]="['/favorites/edit', f.id]">Editar</a>
-      <button type="button" (click)="remove()">Eliminar</button>
-    </div>
-  </div>
-
-  <div class="note-block">
-    <h3>Nota</h3>
-    <p>{{ f.note || '—' }}</p>
-  </div>
-
-  <hr />
-
-  <h3>Datos desde PokéAPI</h3>
-  <p *ngIf="pokemonLoading()">Cargando datos del Pokémon...</p>
-
-  <div *ngIf="!pokemonLoading() && pokemon() as p" class="poke">
-    <img
-      class="sprite"
-      *ngIf="p.sprites.front_default"
-      [src]="p.sprites.front_default"
-      [alt]="p.name"
-    />
-
-    <div class="poke-info">
-      <h4 class="cap">#{{ p.id }} - {{ p.name }}</h4>
-
-      <div class="types">
-        <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+@if (!loading() && favorite(); as f) {
+  <div class="card">
+    <div class="header">
+      <div>
+        <h2 class="title">Favorito #{{ f.id }}</h2>
+        <p class="muted">
+          Pok&eacute;mon: <strong>#{{ f.pokemon_id }}</strong> &middot;
+          <strong class="cap">{{ f.pokemon_name }}</strong>
+        </p>
       </div>
 
-      <div class="stats">
-        <div class="stat" *ngFor="let s of p.stats">
-          <span class="cap">{{ s.stat.name }}</span>
-          <strong>{{ s.base_stat }}</strong>
+      @if (isAdmin) {
+        <div class="admin-actions">
+          <a class="btn" [routerLink]="['/favorites/edit', f.id]">Editar</a>
+          <button type="button" (click)="remove()">Eliminar</button>
+        </div>
+      }
+    </div>
+
+    <div class="note-block">
+      <h3>Nota</h3>
+      <p>{{ f.note || 'â€”' }}</p>
+    </div>
+
+    <hr />
+
+    <h3>Datos desde Pok&eacute;API</h3>
+    @if (pokemonLoading()) {
+      <p>Cargando datos del Pok&eacute;mon...</p>
+    }
+
+    @if (!pokemonLoading() && pokemon(); as p) {
+      <div class="poke">
+        @if (p.sprites.front_default) {
+          <img
+            class="sprite"
+            [src]="p.sprites.front_default"
+            [alt]="p.name"
+          />
+        }
+
+        <div class="poke-info">
+          <h4 class="cap">#{{ p.id }} - {{ p.name }}</h4>
+
+          <div class="types">
+            <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+          </div>
+
+          <div class="stats">
+            <div class="stat" *ngFor="let s of p.stats">
+              <span class="cap">{{ s.stat.name }}</span>
+              <strong>{{ s.base_stat }}</strong>
+            </div>
+          </div>
+
+          <p class="muted">
+            <a [routerLink]="['/pokemons', p.id]">Ver detalle completo del Pok&eacute;mon</a>
+          </p>
         </div>
       </div>
+    }
 
-      <p class="muted">
-        <a [routerLink]="['/pokemons', p.id]">Ver detalle completo del Pokémon</a>
-      </p>
-    </div>
+    @if (!pokemonLoading() && !pokemon()) {
+      <p>No se pudieron cargar los datos del Pok&eacute;mon desde Pok&eacute;API.</p>
+    }
   </div>
-
-  <p *ngIf="!pokemonLoading() && !pokemon()">
-    No se pudieron cargar los datos del Pokémon desde PokéAPI.
-  </p>
-</div>
+}

@@ -29,7 +29,11 @@
       <a class="btn" routerLink="/favorites">Cancelar</a>
     </div>
 
-    <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
-    <p *ngIf="successMsg()">{{ successMsg() }}</p>
+    @if (errorMsg()) {
+      <p>{{ errorMsg() }}</p>
+    }
+    @if (successMsg()) {
+      <p>{{ successMsg() }}</p>
+    }
   </form>
 </div>

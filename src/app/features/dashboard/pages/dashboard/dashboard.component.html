@@ -1,9 +1,15 @@
 <h2>Dashboard</h2>
 
-<p *ngIf="loading()">Cargando...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando...</p>
+}
 
-<div *ngIf="!loading() && !errorMsg()">
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
+
+@if (!loading() && !errorMsg()) {
+  <div>
   <p><strong>Email:</strong> {{ auth.user()?.email }}</p>
   <p><strong>Rol:</strong> {{ auth.profile()?.role }}</p>
 
@@ -14,10 +20,13 @@
     <a routerLink="/pokemons">Explorar Pokémons</a>
   </div>
 
-  <div *ngIf="auth.isAdmin()">
-    <hr />
-    <h3>Zona Admin</h3>
-    <a routerLink="/admin/users">Gestionar usuarios</a> |
-    <a routerLink="/admin/content">Gestionar contenido</a>
+  @if (auth.isAdmin()) {
+    <div>
+      <hr />
+      <h3>Zona Admin</h3>
+      <a routerLink="/admin/users">Gestionar usuarios</a> |
+      <a routerLink="/admin/content">Gestionar contenido</a>
+    </div>
+  }
   </div>
-</div>
+}

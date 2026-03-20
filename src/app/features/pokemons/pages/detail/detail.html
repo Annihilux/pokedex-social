@@ -1,108 +1,124 @@
-<a class="back" routerLink="/pokemons">← Volver</a>
+<a class="back" routerLink="/pokemons">&#8592; Volver</a>
 
-<p *ngIf="loading()">Cargando detalle...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando detalle...</p>
+}
 
-<div *ngIf="!loading() && pokemon() as p" class="detail card">
-  <div class="top">
-    <div>
-      <h2 class="title">
-        <span class="muted">#{{ p.id }}</span>
-        {{ p.name }}
-      </h2>
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
 
-      <div class="badges">
-        <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+@if (!loading() && pokemon(); as p) {
+  <div class="detail card">
+    <div class="top">
+      <div>
+        <h2 class="title">
+          <span class="muted">#{{ p.id }}</span>
+          {{ p.name }}
+        </h2>
+
+        <div class="badges">
+          <span class="badge" *ngFor="let t of p.types">{{ t.type.name }}</span>
+        </div>
+
+        <p class="muted">
+          Altura: {{ p.height }} &middot; Peso: {{ p.weight }}
+        </p>
+
+        <div class="actions row">
+          <a class="btn" [routerLink]="['/pokemons', p.id]">URL actual</a>
+          <a class="btn" routerLink="/favorites/create">A&ntilde;adir a favoritos</a>
+        </div>
       </div>
 
-      <p class="muted">
-        Altura: {{ p.height }} · Peso: {{ p.weight }}
-      </p>
-
-      <div class="actions row">
-        <a class="btn" [routerLink]="['/pokemons', p.id]">URL actual</a>
-        <a class="btn" routerLink="/favorites/create">Añadir a favoritos</a>
-      </div>
+      @if (p.sprites.front_default) {
+        <img
+          class="sprite"
+          [src]="p.sprites.front_default"
+          [alt]="p.name"
+        />
+      }
     </div>
 
-    <img
-      class="sprite"
-      *ngIf="p.sprites.front_default"
-      [src]="p.sprites.front_default"
-      [alt]="p.name"
-    />
-  </div>
+    <hr />
 
-  <hr />
-
-  <h3>Stats</h3>
+    <h3>Stats</h3>
     <div class="stats">
       <div class="stat" *ngFor="let s of p.stats">
         <div class="name">{{ s.stat.name }}</div>
         <div class="value">{{ s.base_stat }}</div>
       </div>
     </div>
-  </div>
 
-  <hr />
+    <hr />
     <h3>Comentarios</h3>
 
-    <p *ngIf="commentsLoading()">Cargando comentarios...</p>
-    <p *ngIf="commentsError()">{{ commentsError() }}</p>
+    @if (commentsLoading()) {
+      <p>Cargando comentarios...</p>
+    }
+    @if (commentsError()) {
+      <p>{{ commentsError() }}</p>
+    }
 
-    <ul *ngIf="!commentsLoading() && !commentsError()">
-      <li *ngFor="let c of comments()">
-        <small class="muted">
-          {{ c.created_at | date:'dd/MM/yyyy · HH:mm' }}
-        </small>
+    @if (!commentsLoading() && !commentsError()) {
+      <ul>
+        <li *ngFor="let c of comments()">
+          <small class="muted">
+            {{ c.created_at | date:'dd/MM/yyyy · HH:mm' }}
+          </small>
 
-        <!-- Modo edición -->
-        <div *ngIf="editingCommentId() === c.id; else viewMode">
-          <form [formGroup]="editForm" (ngSubmit)="saveEdit(c)">
-            <input type="text" formControlName="content" />
-            <button type="submit">Guardar</button>
-            <button type="button" (click)="cancelEdit()">Cancelar</button>
-          </form>
-          <p *ngIf="editError()">{{ editError() }}</p>
-        </div>
+          @if (editingCommentId() === c.id) {
+            <div>
+              <form [formGroup]="editForm" (ngSubmit)="saveEdit(c)">
+                <input type="text" formControlName="content" />
+                <button type="submit">Guardar</button>
+                <button type="button" (click)="cancelEdit()">Cancelar</button>
+              </form>
+              @if (editError()) {
+                <p>{{ editError() }}</p>
+              }
+            </div>
+          } @else {
+            <div>{{ c.content }}</div>
 
-        <!-- Modo vista -->
-        <ng-template #viewMode>
-          <div>{{ c.content }}</div>
+            @if (canManageComment(c)) {
+              <button type="button" (click)="startEdit(c)">Editar</button>
+              <button type="button" (click)="removeComment(c)">Eliminar</button>
+            }
+          }
 
-          <div *ngIf="canManageComment(c)">
-            <button type="button" (click)="startEdit(c)">Editar</button>
-            <button type="button" (click)="removeComment(c)">Eliminar</button>
-          </div>
-        </ng-template>
+          <hr />
+        </li>
+      </ul>
+    }
 
-        <hr />
-      </li>
-    </ul>
-
-    <p *ngIf="!commentsLoading() && !commentsError() && comments().length === 0">
-    Sé el primero en comentar.
-    </p>
+    @if (!commentsLoading() && !commentsError() && comments().length === 0) {
+      <p>S&eacute; el primero en comentar.</p>
+    }
 
     <hr />
 
-    <div *ngIf="auth.isAuthenticated(); else loginToComment">
-      <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+    @if (auth.isAuthenticated()) {
+      <div>
+        <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
           <label>
-          Nuevo comentario
-          <input type="text" formControlName="content" />
+            Nuevo comentario
+            <input type="text" formControlName="content" />
           </label>
 
           <button type="submit" [disabled]="commentSaving()">
-          {{ commentSaving() ? 'Enviando...' : 'Comentar' }}
+            {{ commentSaving() ? 'Enviando...' : 'Comentar' }}
           </button>
 
-          <p *ngIf="commentError()">{{ commentError() }}</p>
-      </form>
-    </div>
-
-  <ng-template #loginToComment>
-    <p>
-        Para comentar necesitas <a routerLink="/login">iniciar sesión</a>.
-    </p>
-  </ng-template>
+          @if (commentError()) {
+            <p>{{ commentError() }}</p>
+          }
+        </form>
+      </div>
+    } @else {
+      <p>
+        Para comentar necesitas <a routerLink="/login">iniciar sesi&oacute;n</a>.
+      </p>
+    }
+  </div>
+}

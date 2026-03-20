@@ -7,10 +7,16 @@
   <button type="button" (click)="load()">Recargar</button>
 </div>
 
-<p *ngIf="loading()">Cargando...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando...</p>
+}
 
-<div *ngIf="!loading() && !errorMsg()" class="grid">
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
+
+@if (!loading() && !errorMsg()) {
+  <div class="grid">
   <!-- Favoritos -->
   <section class="card">
     <div class="section-header">
@@ -18,9 +24,12 @@
       <span class="pill">{{ favorites().length }}</span>
     </div>
 
-    <p class="muted" *ngIf="favorites().length === 0">No hay favoritos.</p>
+    @if (favorites().length === 0) {
+      <p class="muted">No hay favoritos.</p>
+    }
 
-    <ul class="list" *ngIf="favorites().length > 0">
+    @if (favorites().length > 0) {
+      <ul class="list">
       <li class="item" *ngFor="let f of favorites()">
         <div class="info">
           <a class="title" [routerLink]="['/favorites', f.id]">
@@ -29,7 +38,9 @@
           <div class="muted small">
             pokemon_id: {{ f.pokemon_id }} · user_id: {{ f.user_id }}
           </div>
-          <div class="muted small" *ngIf="f.note">nota: {{ f.note }}</div>
+          @if (f.note) {
+            <div class="muted small">nota: {{ f.note }}</div>
+          }
         </div>
 
         <div class="actions">
@@ -37,7 +48,8 @@
           <button type="button" (click)="deleteFavorite(f)">Eliminar</button>
         </div>
       </li>
-    </ul>
+      </ul>
+    }
   </section>
 
   <!-- Comentarios -->
@@ -47,9 +59,12 @@
       <span class="pill">{{ comments().length }}</span>
     </div>
 
-    <p class="muted" *ngIf="comments().length === 0">No hay comentarios.</p>
+    @if (comments().length === 0) {
+      <p class="muted">No hay comentarios.</p>
+    }
 
-    <ul class="list" *ngIf="comments().length > 0">
+    @if (comments().length > 0) {
+      <ul class="list">
       <li class="item" *ngFor="let c of comments()">
         <div class="info">
           <div class="title">
@@ -66,6 +81,8 @@
           <button type="button" (click)="deleteComment(c)">Eliminar</button>
         </div>
       </li>
-    </ul>
+      </ul>
+    }
   </section>
-</div>
+  </div>
+}

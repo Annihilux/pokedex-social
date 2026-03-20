@@ -1,45 +1,45 @@
 <section class="hero">
   <div class="hero-content">
-    <h1>Pokédex Social</h1>
+    <h1>Pok&eacute;dex Social</h1>
     <p>
-      Explora Pokémon con PokéAPI, guarda tus favoritos y comparte comentarios.
-      Acceso con autenticación JWT mediante Supabase.
+      Explora Pok&eacute;mon con Pok&eacute;API, guarda tus favoritos y comparte comentarios.
+      Acceso con autenticaci&oacute;n JWT mediante Supabase.
     </p>
 
-    <div class="actions" *ngIf="!auth.isAuthenticated(); else logged">
-      <a class="btn primary" routerLink="/register">Crear cuenta</a>
-      <a class="btn" routerLink="/login">Iniciar sesión</a>
-      <a class="btn ghost" routerLink="/pokemons">Explorar Pokémons</a>
-    </div>
-
-    <ng-template #logged>
+    @if (!auth.isAuthenticated()) {
+      <div class="actions">
+        <a class="btn primary" routerLink="/register">Crear cuenta</a>
+        <a class="btn" routerLink="/login">Iniciar sesi&oacute;n</a>
+        <a class="btn ghost" routerLink="/pokemons">Explorar Pok&eacute;mons</a>
+      </div>
+    } @else {
       <div class="actions">
         <a class="btn primary" routerLink="/dashboard">Ir al Dashboard</a>
         <a class="btn" routerLink="/favorites">Mis Favoritos</a>
-        <a class="btn ghost" routerLink="/pokemons">Explorar Pokémons</a>
+        <a class="btn ghost" routerLink="/pokemons">Explorar Pok&eacute;mons</a>
       </div>
 
       <p class="meta">
-        Sesión iniciada como: <strong>{{ auth.user()?.email }}</strong> ·
+        Sesi&oacute;n iniciada como: <strong>{{ auth.user()?.email }}</strong> &middot;
         Rol: <strong>{{ auth.profile()?.role }}</strong>
       </p>
-    </ng-template>
+    }
   </div>
 </section>
 
 <section class="features">
   <div class="card">
-    <h3>API Pública</h3>
-    <p>Datos en tiempo real desde PokéAPI (listado y detalle).</p>
+    <h3>API P&uacute;blica</h3>
+    <p>Datos en tiempo real desde Pok&eacute;API (listado y detalle).</p>
   </div>
 
   <div class="card">
     <h3>Favoritos</h3>
-    <p>Guarda Pokémon, añade notas y gestión por rol admin.</p>
+    <p>Guarda Pok&eacute;mon, a&ntilde;ade notas y gesti&oacute;n por rol admin.</p>
   </div>
 
   <div class="card">
     <h3>Comentarios</h3>
-    <p>Comenta cada Pokémon y modera con permisos de administrador.</p>
+    <p>Comenta cada Pok&eacute;mon y modera con permisos de administrador.</p>
   </div>
 </section>

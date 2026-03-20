@@ -6,10 +6,16 @@
   <button type="button" (click)="load()">Recargar</button>
 </div>
 
-<p *ngIf="loading()">Cargando...</p>
-<p *ngIf="errorMsg()">{{ errorMsg() }}</p>
+@if (loading()) {
+  <p>Cargando...</p>
+}
 
-<div class="card" *ngIf="!loading() && !errorMsg()">
+@if (errorMsg()) {
+  <p>{{ errorMsg() }}</p>
+}
+
+@if (!loading() && !errorMsg()) {
+  <div class="card">
   <div class="table-wrap">
     <table>
       <thead>
@@ -49,5 +55,8 @@
     </table>
   </div>
 
-  <p class="muted" *ngIf="users().length === 0">No hay usuarios.</p>
-</div>
+  @if (users().length === 0) {
+    <p class="muted">No hay usuarios.</p>
+  }
+  </div>
+}
