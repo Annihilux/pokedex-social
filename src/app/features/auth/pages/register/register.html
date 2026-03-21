@@ -5,29 +5,48 @@
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
       <label>Username</label>
-      <input type="text" formControlName="username" placeholder="Tu username" />
+      <input type="text" formControlName="username" placeholder="Tu username" maxlength="30" />
       @if (form.get('username')?.touched && form.get('username')?.invalid) {
-        <small>El username es obligatorio (min. 3 caracteres).</small>
+        <small>
+          @if (form.get('username')?.errors?.['required']) {
+            El username es obligatorio.
+          } @else if (form.get('username')?.errors?.['minlength']) {
+            El username debe tener al menos 3 caracteres.
+          } @else if (form.get('username')?.errors?.['maxlength']) {
+            El username no puede superar los 30 caracteres.
+          } @else if (form.get('username')?.errors?.['pattern']) {
+            Solo se permiten letras, numeros, punto, guion y guion bajo.
+          }
+        </small>
       }
     </div>
 
     <div class="field">
       <label>Email</label>
       <input type="email" formControlName="email" placeholder="tu@email.com" />
+      @if (form.get('email')?.touched && form.get('email')?.invalid) {
+        <small>Introduce un correo valido.</small>
+      }
     </div>
 
     <div class="field">
-      <label>Contraseña</label>
-      <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+      <label>Contrasena</label>
+      <input type="password" formControlName="password" placeholder="Minimo 6 caracteres" />
+      @if (form.get('password')?.touched && form.get('password')?.invalid) {
+        <small>La contrasena debe tener al menos 6 caracteres.</small>
+      }
     </div>
 
     <div class="field">
-      <label>Confirmar contraseña</label>
-      <input type="password" formControlName="confirmPassword" placeholder="Repite la contraseña" />
+      <label>Confirmar contrasena</label>
+      <input type="password" formControlName="confirmPassword" placeholder="Repite la contrasena" />
+      @if (form.get('confirmPassword')?.touched && form.get('confirmPassword')?.invalid) {
+        <small>Debes confirmar la contrasena.</small>
+      }
     </div>
 
     <div class="actions">
-      <button class="primary" type="submit" [disabled]="loading()">
+      <button class="primary" type="submit" [disabled]="loading() || form.invalid">
         {{ loading() ? 'Registrando...' : 'Registrarse' }}
       </button>
       <a class="btn" routerLink="/login">Ya tengo cuenta</a>

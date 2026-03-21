@@ -4,6 +4,11 @@ import { UserService } from './user';
 import { Session, User } from '@supabase/supabase-js';
 import { Profile } from '../../shared/models/user.model';
 
+const USERNAME_MIN_LENGTH = 3;
+const USERNAME_MAX_LENGTH = 30;
+const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+const PASSWORD_MIN_LENGTH = 6;
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
@@ -67,14 +72,81 @@ export class AuthService {
     return (username ?? '').trim();
   }
 
-  async register(email: string, password: string, username: string) {
-    const normalizedUsername = this.normalizeUsername(username);
-    if (!normalizedUsername) {
+  private normalizeEmail(email: string): string {
+    return (email ?? '').trim();
+  }
+
+  private validateUsername(username: string): void {
+    if (!username) {
       throw new Error('El username es obligatorio.');
     }
 
+    if (username.length < USERNAME_MIN_LENGTH) {
+      throw new Error(`El username debe tener al menos ${USERNAME_MIN_LENGTH} caracteres.`);
+    }
+
+    if (username.length > USERNAME_MAX_LENGTH) {
+      throw new Error(`El username no puede superar los ${USERNAME_MAX_LENGTH} caracteres.`);
+    }
+
+    if (!USERNAME_PATTERN.test(username)) {
+      throw new Error('El username solo puede contener letras, numeros, punto, guion y guion bajo.');
+    }
+  }
+
+  private mapAuthError(error: any, context: 'login' | 'register'): Error {
+    const message = String(error?.message ?? '').toLowerCase();
+
+    if (context === 'login') {
+      if (message.includes('invalid login credentials')) {
+        return new Error('Correo o contrasena incorrectos.');
+      }
+
+      if (message.includes('email not confirmed')) {
+        return new Error('Debes confirmar tu correo antes de iniciar sesion.');
+      }
+    }
+
+    if (context === 'register') {
+      if (message.includes('user already registered')) {
+        return new Error('Ya existe una cuenta con ese correo.');
+      }
+
+      if (message.includes('profiles_username_unique_ci')) {
+        return new Error('El username ya esta en uso.');
+      }
+
+      if (message.includes('profiles_username_length')) {
+        return new Error(`El username debe tener entre ${USERNAME_MIN_LENGTH} y ${USERNAME_MAX_LENGTH} caracteres.`);
+      }
+
+      if (message.includes('profiles_username_format')) {
+        return new Error('El username contiene caracteres no permitidos.');
+      }
+    }
+
+    return new Error(error?.message ?? (context === 'login' ? 'Error en el login.' : 'Error registrando usuario.'));
+  }
+
+  async register(email: string, password: string, username: string) {
+    const normalizedEmail = this.normalizeEmail(email);
+    const normalizedUsername = this.normalizeUsername(username);
+    if (!normalizedEmail) {
+      throw new Error('El correo es obligatorio.');
+    }
+
+    this.validateUsername(normalizedUsername);
+
+    if (!password) {
+      throw new Error('La contrasena es obligatoria.');
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      throw new Error(`La contrasena debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`);
+    }
+
     const { data, error } = await this.supabase.client.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: {
@@ -82,13 +154,25 @@ export class AuthService {
         }
       }
     });
-    if (error) throw error;
+    if (error) throw this.mapAuthError(error, 'register');
     return data;
   }
 
   async login(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    const normalizedEmail = this.normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new Error('El correo es obligatorio.');
+    }
+
+    if (!password) {
+      throw new Error('La contrasena es obligatoria.');
+    }
+
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({
+      email: normalizedEmail,
+      password
+    });
+    if (error) throw this.mapAuthError(error, 'login');
     return data;
   }
 

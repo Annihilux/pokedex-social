@@ -4,6 +4,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth';
 
+const USERNAME_MAX_LENGTH = 30;
+const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -26,7 +29,7 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.form = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(USERNAME_MAX_LENGTH), Validators.pattern(USERNAME_PATTERN)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
@@ -52,9 +55,15 @@ export class RegisterComponent {
 
     try {
       this.loading.set(true);
-      await this.auth.register(email, password, username);
-      this.successMsg.set('Registro correcto.');
-      await this.router.navigate(['/login']);
+      const result = await this.auth.register(email, password, username);
+
+      if (result.session) {
+        await this.router.navigate(['/dashboard']);
+        return;
+      }
+
+      this.successMsg.set('Registro correcto. Revisa tu correo antes de iniciar sesion.');
+      this.form.reset();
     } catch (e: any) {
       this.errorMsg.set(e?.message ?? 'Error registrando usuario.');
     } finally {

@@ -33,6 +33,7 @@ export class LoginComponent {
     this.errorMsg.set(null);
 
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.errorMsg.set('Revisa los campos.');
       return;
     }

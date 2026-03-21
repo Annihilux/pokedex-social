@@ -6,15 +6,21 @@
     <div class="field">
       <label>Email</label>
       <input type="email" formControlName="email" placeholder="tu@email.com" />
+      @if (form.get('email')?.touched && form.get('email')?.invalid) {
+        <small>Introduce un correo valido.</small>
+      }
     </div>
 
     <div class="field">
-      <label>Contraseña</label>
-      <input type="password" formControlName="password" placeholder="••••••••" />
+      <label>Contrasena</label>
+      <input type="password" formControlName="password" placeholder="********" />
+      @if (form.get('password')?.touched && form.get('password')?.invalid) {
+        <small>La contrasena es obligatoria.</small>
+      }
     </div>
 
     <div class="actions">
-      <button class="primary" type="submit" [disabled]="loading()">
+      <button class="primary" type="submit" [disabled]="loading() || form.invalid">
         {{ loading() ? 'Entrando...' : 'Entrar' }}
       </button>
       <a class="btn" routerLink="/register">Crear cuenta</a>
