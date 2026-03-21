@@ -63,8 +63,25 @@ export class AuthService {
     }
   }
 
-  async register(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signUp({ email, password });
+  private normalizeUsername(username: string): string {
+    return (username ?? '').trim();
+  }
+
+  async register(email: string, password: string, username: string) {
+    const normalizedUsername = this.normalizeUsername(username);
+    if (!normalizedUsername) {
+      throw new Error('El username es obligatorio.');
+    }
+
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: normalizedUsername
+        }
+      }
+    });
     if (error) throw error;
     return data;
   }

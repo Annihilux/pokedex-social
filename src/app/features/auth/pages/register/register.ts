@@ -26,7 +26,7 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.form = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
+      username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
@@ -38,11 +38,12 @@ export class RegisterComponent {
     this.successMsg.set(null);
 
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.errorMsg.set('Revisa los campos del formulario.');
       return;
     }
 
-    const { email, password, confirmPassword } = this.form.value;
+    const { username, email, password, confirmPassword } = this.form.value;
 
     if (password !== confirmPassword) {
       this.errorMsg.set('Las contraseñas no coinciden.');
@@ -51,7 +52,7 @@ export class RegisterComponent {
 
     try {
       this.loading.set(true);
-      await this.auth.register(email, password);
+      await this.auth.register(email, password, username);
       this.successMsg.set('Registro correcto.');
       await this.router.navigate(['/login']);
     } catch (e: any) {

@@ -4,8 +4,11 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
-      <label>Nombre</label>
-      <input type="text" formControlName="name" placeholder="Tu nombre" />
+      <label>Username</label>
+      <input type="text" formControlName="username" placeholder="Tu username" />
+      @if (form.get('username')?.touched && form.get('username')?.invalid) {
+        <small>El username es obligatorio (min. 3 caracteres).</small>
+      }
     </div>
 
     <div class="field">
