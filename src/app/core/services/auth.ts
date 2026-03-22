@@ -128,6 +128,20 @@ export class AuthService {
     return new Error(error?.message ?? (context === 'login' ? 'Error en el login.' : 'Error registrando usuario.'));
   }
 
+  private async ensureUsernameAvailable(username: string): Promise<void> {
+    const { data, error } = await this.supabase.client.rpc('is_username_available', {
+      requested_username: username
+    });
+
+    if (error) {
+      throw new Error('No se pudo validar el username en este momento.');
+    }
+
+    if (!data) {
+      throw new Error('El username ya esta en uso.');
+    }
+  }
+
   async register(email: string, password: string, username: string) {
     const normalizedEmail = this.normalizeEmail(email);
     const normalizedUsername = this.normalizeUsername(username);
@@ -136,6 +150,7 @@ export class AuthService {
     }
 
     this.validateUsername(normalizedUsername);
+    await this.ensureUsernameAvailable(normalizedUsername);
 
     if (!password) {
       throw new Error('La contrasena es obligatoria.');
