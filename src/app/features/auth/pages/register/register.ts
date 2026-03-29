@@ -58,7 +58,7 @@ export class RegisterComponent {
       const result = await this.auth.register(email, password, username);
 
       if (result.session) {
-        await this.router.navigate(['/dashboard']);
+        await this.router.navigate(['/']);
         return;
       }
 
@@ -68,6 +68,17 @@ export class RegisterComponent {
       this.errorMsg.set(e?.message ?? 'Error registrando usuario.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async signInWithGoogle() {
+    this.errorMsg.set(null);
+    this.successMsg.set(null);
+
+    try {
+      await this.auth.signInWithGoogle();
+    } catch (e: any) {
+      this.errorMsg.set(e?.message ?? 'Error iniciando registro con Google.');
     }
   }
 }

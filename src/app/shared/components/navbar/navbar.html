@@ -7,6 +7,7 @@
       <a routerLink="/pokemons">Pok&eacute;mons</a>
       @if (auth.isAuthenticated()) {
         <a routerLink="/favorites">Favoritos</a>
+        <a routerLink="/profile">Perfil</a>
       }
       @if (auth.isAdmin()) {
         <a routerLink="/admin/users">Admin: Usuarios</a>

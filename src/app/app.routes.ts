@@ -18,8 +18,7 @@ import { ManageContentComponent } from './features/admin/pages/manage-content/ma
 
 import { authGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
-
-import { DashboardComponent } from './features/dashboard/pages/dashboard/dashboard.component';
+import { ProfileComponent } from './features/profile/pages/profile/profile';
 
 export const routes: Routes = [
 
@@ -42,7 +41,7 @@ export const routes: Routes = [
   { path: 'admin/users', component: UsersComponent, canActivate: [authGuard, roleGuard] },
   { path: 'admin/content', component: ManageContentComponent, canActivate: [authGuard, roleGuard] },
 
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
 
   // 404
   { path: '**', component: NotFoundComponent }

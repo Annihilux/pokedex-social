@@ -1,0 +1,27 @@
+.profile-card {
+  max-width: 640px;
+  margin: 20px auto;
+}
+
+.summary {
+  padding: 10px 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.section {
+  margin-top: 18px;
+  padding-top: 6px;
+}
+
+.field {
+  margin-top: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}

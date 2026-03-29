@@ -43,11 +43,21 @@ export class LoginComponent {
     try {
       this.loading.set(true);
       await this.auth.login(email, password);
-      await this.router.navigate(['/dashboard']);
+      await this.router.navigate(['/']);
     } catch (e: any) {
       this.errorMsg.set(e?.message ?? 'Error en el login.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async signInWithGoogle() {
+    this.errorMsg.set(null);
+
+    try {
+      await this.auth.signInWithGoogle();
+    } catch (e: any) {
+      this.errorMsg.set(e?.message ?? 'Error iniciando sesion con Google.');
     }
   }
 }

@@ -2,6 +2,12 @@
   <h2>Registro</h2>
   <p class="muted">Crea tu cuenta para guardar favoritos y participar con comentarios.</p>
 
+  <button class="btn google-btn" type="button" (click)="signInWithGoogle()">
+    Registrarse con Google
+  </button>
+
+  <p class="muted separator">o registra con email y contrasena</p>
+
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
       <label>Username</label>

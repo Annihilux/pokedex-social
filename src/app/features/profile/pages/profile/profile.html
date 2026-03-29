@@ -1,0 +1,76 @@
+<div class="card profile-card">
+  <h2>Perfil</h2>
+  <p class="muted">Gestiona tu username y configura una contrasena para entrar tambien sin Google.</p>
+
+  <div class="summary">
+    <p><strong>Email:</strong> {{ auth.profile()?.email || auth.user()?.email }}</p>
+    <p><strong>Username actual:</strong> {{ auth.profile()?.username }}</p>
+  </div>
+
+  <section class="section">
+    <h3>Cambiar username</h3>
+
+    <form [formGroup]="usernameForm" (ngSubmit)="saveUsername()">
+      <div class="field">
+        <label>Nuevo username</label>
+        <input type="text" formControlName="username" maxlength="30" placeholder="Tu username" />
+        @if (usernameForm.get('username')?.touched && usernameForm.get('username')?.invalid) {
+          <small>
+            @if (usernameForm.get('username')?.errors?.['required']) {
+              El username es obligatorio.
+            } @else if (usernameForm.get('username')?.errors?.['minlength']) {
+              El username debe tener al menos 3 caracteres.
+            } @else if (usernameForm.get('username')?.errors?.['maxlength']) {
+              El username no puede superar los 30 caracteres.
+            } @else if (usernameForm.get('username')?.errors?.['pattern']) {
+              Solo se permiten letras, numeros, punto, guion y guion bajo.
+            }
+          </small>
+        }
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="usernameLoading()">
+          {{ usernameLoading() ? 'Guardando...' : 'Guardar nombre' }}
+        </button>
+      </div>
+    </form>
+
+    @if (usernameErrorMsg()) {
+      <p>{{ usernameErrorMsg() }}</p>
+    }
+
+    @if (usernameSuccessMsg()) {
+      <p>{{ usernameSuccessMsg() }}</p>
+    }
+  </section>
+
+  <section class="section">
+    <h3>Contrasena</h3>
+    <p class="muted">Establece una contrasena para poder iniciar sesion sin Google.</p>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <div class="field">
+        <label>Nueva contrasena</label>
+        <input type="password" formControlName="password" placeholder="Minimo 6 caracteres" />
+        @if (passwordForm.get('password')?.touched && passwordForm.get('password')?.invalid) {
+          <small>La contrasena debe tener al menos 6 caracteres.</small>
+        }
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="passwordLoading()">
+          {{ passwordLoading() ? 'Guardando...' : 'Guardar contrasena' }}
+        </button>
+      </div>
+    </form>
+
+    @if (passwordErrorMsg()) {
+      <p>{{ passwordErrorMsg() }}</p>
+    }
+
+    @if (passwordSuccessMsg()) {
+      <p>{{ passwordSuccessMsg() }}</p>
+    }
+  </section>
+</div>
