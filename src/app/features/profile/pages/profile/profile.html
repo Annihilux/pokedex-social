@@ -3,9 +3,50 @@
   <p class="muted">Gestiona tu username y configura una contrasena para entrar tambien sin Google.</p>
 
   <div class="summary">
+    <img class="profile-avatar" [src]="currentAvatarUrl()" alt="Foto de perfil actual" />
     <p><strong>Email:</strong> {{ auth.profile()?.email || auth.user()?.email }}</p>
     <p><strong>Username actual:</strong> {{ auth.profile()?.username }}</p>
   </div>
+
+  <section class="section">
+    <h3>Foto de perfil</h3>
+    <p class="muted">Puedes subir JPG, JPEG, PNG o WEBP. La imagen final se optimiza antes de subirla y debe quedar por debajo de 400 KB.</p>
+
+    <div class="avatar-editor">
+      <img class="profile-avatar large" [src]="currentAvatarUrl()" alt="Preview de foto de perfil" />
+
+      <div class="avatar-controls">
+        <input
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          (change)="onAvatarSelected($event)"
+        />
+
+        @if (avatarProcessing()) {
+          <small>Optimizando imagen...</small>
+        }
+
+        <div class="actions">
+          <button
+            class="primary"
+            type="button"
+            (click)="saveAvatar()"
+            [disabled]="avatarLoading() || avatarProcessing()"
+          >
+            {{ avatarLoading() ? 'Guardando...' : 'Guardar foto' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (avatarErrorMsg()) {
+      <p>{{ avatarErrorMsg() }}</p>
+    }
+
+    @if (avatarSuccessMsg()) {
+      <p>{{ avatarSuccessMsg() }}</p>
+    }
+  </section>
 
   <section class="section">
     <h3>Cambiar username</h3>

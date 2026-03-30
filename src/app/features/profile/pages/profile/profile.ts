@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AvatarService } from '../../../../core/services/avatar';
 import { AuthService } from '../../../../core/services/auth';
 
 const USERNAME_MAX_LENGTH = 30;
@@ -13,16 +14,24 @@ const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnDestroy {
   private fb = inject(FormBuilder);
+  public avatar = inject(AvatarService);
 
   usernameLoading = signal(false);
   passwordLoading = signal(false);
+  avatarProcessing = signal(false);
+  avatarLoading = signal(false);
 
   usernameErrorMsg = signal<string | null>(null);
   usernameSuccessMsg = signal<string | null>(null);
   passwordErrorMsg = signal<string | null>(null);
   passwordSuccessMsg = signal<string | null>(null);
+  avatarErrorMsg = signal<string | null>(null);
+  avatarSuccessMsg = signal<string | null>(null);
+  avatarPreviewUrl = signal<string | null>(null);
+
+  private avatarFile: File | null = null;
 
   usernameForm = this.fb.group({
     username: [
@@ -96,5 +105,71 @@ export class ProfileComponent {
     } finally {
       this.passwordLoading.set(false);
     }
+  }
+
+  currentAvatarUrl(): string {
+    return this.avatarPreviewUrl() || this.avatar.resolveAvatarUrl(this.auth.profile()?.avatar_url);
+  }
+
+  async onAvatarSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      this.clearPreparedAvatar();
+      return;
+    }
+
+    this.avatarErrorMsg.set(null);
+    this.avatarSuccessMsg.set(null);
+
+    try {
+      this.avatarProcessing.set(true);
+      const preparedAvatar = await this.avatar.prepareAvatarUpload(file);
+      this.setAvatar(preparedAvatar.file, preparedAvatar.previewUrl);
+    } catch (e: any) {
+      this.clearPreparedAvatar();
+      this.avatarErrorMsg.set(e?.message ?? 'No se pudo preparar la foto de perfil.');
+      input.value = '';
+    } finally {
+      this.avatarProcessing.set(false);
+    }
+  }
+
+  async saveAvatar() {
+    this.avatarErrorMsg.set(null);
+    this.avatarSuccessMsg.set(null);
+
+    if (!this.avatarFile) {
+      this.avatarErrorMsg.set('Selecciona una imagen antes de guardar.');
+      return;
+    }
+
+    try {
+      this.avatarLoading.set(true);
+      await this.auth.updateAvatar(this.avatarFile);
+      this.avatarSuccessMsg.set('Foto de perfil actualizada correctamente.');
+      this.clearPreparedAvatar();
+    } catch (e: any) {
+      this.avatarErrorMsg.set(e?.message ?? 'No se pudo actualizar la foto de perfil.');
+    } finally {
+      this.avatarLoading.set(false);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clearPreparedAvatar();
+  }
+
+  private setAvatar(file: File, previewUrl: string): void {
+    this.avatar.revokePreviewUrl(this.avatarPreviewUrl());
+    this.avatarFile = file;
+    this.avatarPreviewUrl.set(previewUrl);
+  }
+
+  private clearPreparedAvatar(): void {
+    this.avatar.revokePreviewUrl(this.avatarPreviewUrl());
+    this.avatarFile = null;
+    this.avatarPreviewUrl.set(null);
   }
 }

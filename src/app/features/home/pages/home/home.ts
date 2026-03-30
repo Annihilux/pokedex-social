@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AvatarService } from '../../../../core/services/avatar';
 import { AuthService } from '../../../../core/services/auth';
 
 @Component({
@@ -12,5 +13,8 @@ import { AuthService } from '../../../../core/services/auth';
 })
 
 export class HomeComponent {
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    public avatar: AvatarService
+  ) {}
 }

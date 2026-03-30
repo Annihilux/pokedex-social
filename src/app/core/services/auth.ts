@@ -2,6 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { Profile } from '../../shared/models/user.model';
+import { AvatarService } from './avatar';
 import { SupabaseService } from './supabase.service';
 import { UserService } from './user';
 
@@ -10,6 +11,12 @@ const USERNAME_MAX_LENGTH = 30;
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 const PASSWORD_MIN_LENGTH = 6;
 const RANDOM_USERNAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+export interface RegisterResult {
+  user: User | null;
+  session: Session | null;
+  avatarWarning?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -32,6 +39,7 @@ export class AuthService {
 
   constructor(
     private supabase: SupabaseService,
+    private avatarService: AvatarService,
     private userService: UserService,
     private router: Router
   ) {
@@ -347,7 +355,19 @@ export class AuthService {
     }
   }
 
-  async register(email: string, password: string, username: string) {
+  async updateAvatar(file: File): Promise<void> {
+    const user = this._user();
+    if (!user) {
+      throw new Error('Debes iniciar sesion para cambiar la foto de perfil.');
+    }
+
+    await this.saveAvatarForUser(user.id, file);
+
+    const profile = await this.userService.getMyProfile();
+    this._profile.set(profile);
+  }
+
+  async register(email: string, password: string, username: string, avatarFile?: File | null): Promise<RegisterResult> {
     const normalizedEmail = this.normalizeEmail(email);
     const normalizedUsername = this.normalizeUsername(username);
     if (!normalizedEmail) {
@@ -375,7 +395,29 @@ export class AuthService {
       }
     });
     if (error) throw this.mapAuthError(error, 'register');
-    return data;
+
+    let avatarWarning: string | undefined;
+    const registeredUserId = data.user?.id ?? data.session?.user?.id ?? null;
+
+    if (data.session) {
+      await this.activateSession(data.session);
+    }
+
+    if (avatarFile && registeredUserId) {
+      try {
+        await this.saveAvatarForUser(registeredUserId, avatarFile);
+        const refreshedProfile = await this.userService.getMyProfile();
+        this._profile.set(refreshedProfile);
+      } catch (avatarError: any) {
+        avatarWarning = avatarError?.message ?? 'La cuenta se creo, pero no se pudo guardar la foto de perfil.';
+      }
+    }
+
+    return {
+      user: data.user ?? null,
+      session: data.session ?? null,
+      avatarWarning
+    };
   }
 
   async login(email: string, password: string) {
@@ -400,5 +442,30 @@ export class AuthService {
     const { error } = await this.supabase.client.auth.signOut();
     if (error) throw error;
     this._profile.set(null);
+  }
+
+  private async saveAvatarForUser(userId: string, file: File): Promise<string> {
+    const avatarUrl = await this.avatarService.uploadAvatar(userId, file);
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ avatar_url: avatarUrl })
+      .eq('user_id', userId);
+
+    if (error) {
+      throw new Error('No se pudo guardar la foto de perfil.');
+    }
+
+    return avatarUrl;
+  }
+
+  private async activateSession(session: Session): Promise<void> {
+    const { error } = await this.supabase.client.auth.setSession({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token
+    });
+
+    if (error) {
+      throw new Error('No se pudo activar la sesion del usuario recien registrado.');
+    }
   }
 }

@@ -19,6 +19,11 @@
       </div>
 
       <p class="meta">
+        <img
+          class="meta-avatar"
+          [src]="avatar.resolveAvatarUrl(auth.profile()?.avatar_url)"
+          alt="Avatar del usuario autenticado"
+        />
         Sesi&oacute;n iniciada como: <strong>{{ auth.user()?.email }}</strong> &middot;
         Rol: <strong>{{ auth.profile()?.role }}</strong>
       </p>

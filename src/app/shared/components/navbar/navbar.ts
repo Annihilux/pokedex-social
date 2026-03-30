@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AvatarService } from '../../../core/services/avatar';
 import { AuthService } from '../../../core/services/auth';
 
 @Component({
@@ -11,7 +12,11 @@ import { AuthService } from '../../../core/services/auth';
   styleUrl: './navbar.scss'
 })
 export class NavbarComponent {
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    public avatar: AvatarService,
+    private router: Router
+  ) {}
 
   async logout() {
     await this.auth.logout();

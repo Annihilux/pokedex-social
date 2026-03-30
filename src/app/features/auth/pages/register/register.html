@@ -10,6 +10,29 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
+      <label>Foto de perfil (opcional)</label>
+      <div class="avatar-picker">
+        <img
+          class="avatar-preview"
+          [src]="avatarPreviewUrl() || avatar.defaultAvatarUrl"
+          alt="Preview de foto de perfil"
+        />
+
+        <div class="avatar-inputs">
+          <input
+            type="file"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            (change)="onAvatarSelected($event)"
+          />
+          <small>Formatos permitidos: JPG, JPEG, PNG y WEBP. Maximo final: 400 KB.</small>
+          @if (avatarProcessing()) {
+            <small>Optimizando imagen...</small>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Username</label>
       <input type="text" formControlName="username" placeholder="Tu username" maxlength="30" />
       @if (form.get('username')?.touched && form.get('username')?.invalid) {
@@ -52,7 +75,7 @@
     </div>
 
     <div class="actions">
-      <button class="primary" type="submit" [disabled]="loading() || form.invalid">
+      <button class="primary" type="submit" [disabled]="loading() || avatarProcessing() || form.invalid">
         {{ loading() ? 'Registrando...' : 'Registrarse' }}
       </button>
       <a class="btn" routerLink="/login">Ya tengo cuenta</a>
