@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnDestroy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { PokemonService } from '../../services/pokemon';
 import { PokemonListItem } from '../../../../shared/models/pokemon.model';
 import { FavoriteService } from '../../../favorites/services/favorite';
@@ -14,70 +15,100 @@ type PokemonCard = { id: number; name: string };
   templateUrl: './list.html',
   styleUrl: './list.scss'
 })
-export class ListComponent {
-  loading = signal(true);
+export class ListComponent implements OnDestroy {
+  private pageLoading = signal(true);
+  private searchLoading = signal(false);
+  loading = computed(() => this.pageLoading() || this.searchLoading());
+
   errorMsg = signal<string | null>(null);
   favoritesCounts = signal<Record<number, number>>({});
 
-  // listado ya mapeado a cards
+  // Current paginated page mapped to cards
   cards = signal<PokemonCard[]>([]);
+  // Global search results (name/id)
+  searchResults = signal<PokemonCard[]>([]);
 
-  // búsqueda local
   query = signal('');
+  isSearchMode = computed(() => this.query().trim().length > 0);
+  visibleCards = computed(() => (this.isSearchMode() ? this.searchResults() : this.cards()));
 
-  filtered = computed(() => {
-    const q = this.query().trim().toLowerCase();
-    if (!q) return this.cards();
-    return this.cards().filter(p => p.name.includes(q) || String(p.id).includes(q));
-  });
-
-  limit = 24;
+  limit = 100;
   offset = signal(0);
+
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private pageRequestSub: Subscription | null = null;
+  private searchRequestSub: Subscription | null = null;
 
   constructor(
     private pokemonService: PokemonService,
     private favoriteService: FavoriteService
   ) {
-    this.load();
+    this.loadPage();
   }
 
-  load() {
-    this.loading.set(true);
-    this.errorMsg.set(null);
-    this.favoritesCounts.set({});
+  ngOnDestroy(): void {
+    this.pageRequestSub?.unsubscribe();
+    this.searchRequestSub?.unsubscribe();
+    if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
+  }
 
-    this.pokemonService.getPokemons(this.limit, this.offset()).subscribe({
+  loadPage(): void {
+    this.pageLoading.set(true);
+    this.errorMsg.set(null);
+    this.pageRequestSub?.unsubscribe();
+
+    this.pageRequestSub = this.pokemonService.getPokemons(this.limit, this.offset()).subscribe({
       next: (res) => {
         const mapped = res.results.map((p: PokemonListItem) => {
           const id = Number(this.getIdFromUrl(p.url));
           return { id, name: p.name };
         });
+
         this.cards.set(mapped);
         void this.loadFavoritesCounts(mapped.map((pokemon) => pokemon.id));
-        this.loading.set(false);
+        this.pageLoading.set(false);
       },
       error: () => {
         this.errorMsg.set('Error cargando Pokémons.');
-        this.loading.set(false);
+        this.pageLoading.set(false);
       }
     });
   }
 
-  nextPage() {
+  nextPage(): void {
     this.offset.set(this.offset() + this.limit);
-    this.load();
+    this.loadPage();
   }
 
-  prevPage() {
+  prevPage(): void {
     this.offset.set(Math.max(0, this.offset() - this.limit));
-    this.load();
+    this.loadPage();
   }
 
-  setQuery(value: string) {
+  setQuery(value: string): void {
     this.query.set(value);
+    const term = value.trim().toLowerCase();
+
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+      this.searchDebounceTimer = null;
+    }
+
+    this.searchRequestSub?.unsubscribe();
+    this.searchLoading.set(false);
+
+    if (!term) {
+      this.searchResults.set([]);
+      this.errorMsg.set(null);
+      return;
+    }
+
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchPokemon(term);
+    }, 250);
   }
 
-  spriteUrl(id: number) {
+  spriteUrl(id: number): string {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   }
 
@@ -85,12 +116,30 @@ export class ListComponent {
     return this.favoritesCounts()[id] ?? 0;
   }
 
+  private searchPokemon(term: string): void {
+    this.searchLoading.set(true);
+    this.errorMsg.set(null);
+    this.searchRequestSub?.unsubscribe();
+
+    this.searchRequestSub = this.pokemonService.getPokemonById(term).subscribe({
+      next: (pokemon) => {
+        this.searchResults.set([{ id: pokemon.id, name: pokemon.name }]);
+        void this.loadFavoritesCounts([pokemon.id]);
+        this.searchLoading.set(false);
+      },
+      error: () => {
+        this.searchResults.set([]);
+        this.searchLoading.set(false);
+      }
+    });
+  }
+
   private async loadFavoritesCounts(pokemonIds: number[]): Promise<void> {
     try {
       const counts = await this.favoriteService.getFavoritesCounts(pokemonIds);
-      this.favoritesCounts.set(counts);
+      this.favoritesCounts.set({ ...this.favoritesCounts(), ...counts });
     } catch {
-      this.favoritesCounts.set({});
+      // Keep current counts if favorites request fails
     }
   }
 

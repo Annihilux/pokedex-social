@@ -1,5 +1,5 @@
 <div class="header">
-  <h2>Pokémons</h2>
+  <h2>Pokemons</h2>
 
   <input
     type="text"
@@ -18,22 +18,24 @@
 
 @if (!loading() && !errorMsg()) {
   <div class="grid">
-  <a class="card pokemon" *ngFor="let p of filtered()" [routerLink]="['/pokemons', p.id]">
-    <img [src]="spriteUrl(p.id)" [alt]="p.name" loading="lazy" />
-    <div class="info">
-      <div class="name">{{ p.name }}</div>
-      <div class="muted">#{{ p.id }}</div>
-      <div class="muted">Favoritos globales: {{ favoritesCount(p.id) }}</div>
-    </div>
-  </a>
+    <a class="card pokemon" *ngFor="let p of visibleCards()" [routerLink]="['/pokemons', p.id]">
+      <img [src]="spriteUrl(p.id)" [alt]="p.name" loading="lazy" />
+      <div class="info">
+        <div class="name">{{ p.name }}</div>
+        <div class="muted">#{{ p.id }}</div>
+        <div class="muted">Favoritos globales: {{ favoritesCount(p.id) }}</div>
+      </div>
+    </a>
   </div>
 }
 
-@if (!loading() && !errorMsg() && filtered().length === 0) {
+@if (!loading() && !errorMsg() && visibleCards().length === 0) {
   <p class="muted">No hay resultados.</p>
 }
 
-<div class="pager">
-  <button (click)="prevPage()" [disabled]="loading() || offset() === 0">Anterior</button>
-  <button (click)="nextPage()" [disabled]="loading()">Siguiente</button>
-</div>
+@if (!isSearchMode()) {
+  <div class="pager">
+    <button (click)="prevPage()" [disabled]="loading() || offset() === 0">Anterior</button>
+    <button (click)="nextPage()" [disabled]="loading()">Siguiente</button>
+  </div>
+}
