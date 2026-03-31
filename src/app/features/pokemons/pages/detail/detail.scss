@@ -30,6 +30,11 @@
   margin-bottom: 10px;
 }
 
+.favorite-btn.is-favorite {
+  border-color: #111;
+  font-weight: 700;
+}
+
 .badge {
   border: 1px dashed #ccc;
   border-radius: 999px;

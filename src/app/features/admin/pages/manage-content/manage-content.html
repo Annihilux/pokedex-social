@@ -1,7 +1,7 @@
 <div class="header">
   <div>
     <h2>Admin · Gestión de Contenido</h2>
-    <p class="muted">Moderación global de favoritos y comentarios.</p>
+    <p class="muted">Moderación global de comentarios.</p>
   </div>
 
   <button type="button" (click)="load()">Recargar</button>
@@ -17,40 +17,6 @@
 
 @if (!loading() && !errorMsg()) {
   <div class="grid">
-    <section class="card">
-      <div class="section-header">
-        <h3>Favoritos</h3>
-        <span class="pill">{{ favorites().length }}</span>
-      </div>
-
-      @if (favorites().length === 0) {
-        <p class="muted">No hay favoritos.</p>
-      }
-
-      @if (favorites().length > 0) {
-        <ul class="list">
-          <li class="item" *ngFor="let f of favorites()">
-            <div class="info">
-              <a class="title" [routerLink]="['/favorites', f.id]">
-                #{{ f.id }} · {{ f.pokemon_name }}
-              </a>
-              <div class="muted small">
-                pokemon_id: {{ f.pokemon_id }} · user_id: {{ f.user_id }}
-              </div>
-              @if (f.note) {
-                <div class="muted small">nota: {{ f.note }}</div>
-              }
-            </div>
-
-            <div class="actions">
-              <a class="btn" [routerLink]="['/favorites/edit', f.id]">Editar</a>
-              <button type="button" (click)="deleteFavorite(f)">Eliminar</button>
-            </div>
-          </li>
-        </ul>
-      }
-    </section>
-
     <section class="card">
       <div class="section-header">
         <h3>Comentarios</h3>

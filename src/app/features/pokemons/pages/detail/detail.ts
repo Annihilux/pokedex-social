@@ -9,6 +9,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { AuthService } from '../../../../core/services/auth';
 import { CommentService } from '../../../comments/services/comment';
 import { Comment } from '../../../../shared/models/comment.model';
+import { FavoriteService } from '../../../favorites/services/favorite';
 
 @Component({
   selector: 'app-detail',
@@ -27,6 +28,9 @@ export class DetailComponent {
   comments = signal<Comment[]>([]);
   commentSaving = signal(false);
   commentError = signal<string | null>(null);
+  favoriteBusy = signal(false);
+  favoriteError = signal<string | null>(null);
+  isFavorite = signal(false);
   commentForm!: FormGroup;
 
   editingCommentId = signal<number | null>(null);
@@ -42,7 +46,8 @@ export class DetailComponent {
     private fb: FormBuilder,
     public auth: AuthService,
     public avatar: AvatarService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    private favoriteService: FavoriteService
   ) {
     this.commentForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(2)]]
@@ -69,6 +74,7 @@ export class DetailComponent {
         this.pokemon.set(p);
         this.pokemonId = p.id;
         this.loadComments(p.id);
+        void this.refreshFavoriteState();
         this.loading.set(false);
       },
       error: () => {
@@ -188,6 +194,45 @@ export class DetailComponent {
 
   commentUsername(comment: Comment): string {
     return comment.username?.trim() || 'usuario';
+  }
+
+  async toggleFavorite() {
+    this.favoriteError.set(null);
+
+    if (!this.auth.isAuthenticated()) {
+      this.favoriteError.set('Debes iniciar sesion para gestionar favoritos.');
+      return;
+    }
+
+    try {
+      this.favoriteBusy.set(true);
+
+      if (this.isFavorite()) {
+        await this.favoriteService.removeFavorite(this.pokemonId);
+        this.isFavorite.set(false);
+      } else {
+        await this.favoriteService.addFavorite(this.pokemonId);
+        this.isFavorite.set(true);
+      }
+    } catch (e: any) {
+      this.favoriteError.set(e?.message ?? 'Error actualizando favorito.');
+    } finally {
+      this.favoriteBusy.set(false);
+    }
+  }
+
+  private async refreshFavoriteState() {
+    if (!this.auth.isAuthenticated()) {
+      this.isFavorite.set(false);
+      return;
+    }
+
+    try {
+      const result = await this.favoriteService.isFavorite(this.pokemonId);
+      this.isFavorite.set(result);
+    } catch {
+      this.isFavorite.set(false);
+    }
   }
 
 }

@@ -14,25 +14,34 @@
 }
 
 .fav {
-  text-decoration: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.top {
+.quick-link {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   gap: 12px;
-  align-items: baseline;
-  margin-bottom: 8px;
+  text-decoration: none;
+}
+
+.sprite {
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .name {
   font-weight: 800;
-  text-transform: capitalize;
-}
-
-.note {
-  line-height: 1.4;
 }
 
 @media (max-width: 800px) {

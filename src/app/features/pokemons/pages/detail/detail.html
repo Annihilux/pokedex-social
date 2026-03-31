@@ -27,8 +27,29 @@
 
         <div class="actions row">
           <a class="btn" [routerLink]="['/pokemons', p.id]">URL actual</a>
-          <a class="btn" routerLink="/favorites/create">A&ntilde;adir a favoritos</a>
+          @if (auth.isAuthenticated()) {
+            <button
+              type="button"
+              class="btn favorite-btn"
+              [class.is-favorite]="isFavorite()"
+              (click)="toggleFavorite()"
+              [disabled]="favoriteBusy()"
+            >
+              @if (favoriteBusy()) {
+                Guardando...
+              } @else if (isFavorite()) {
+                Quitar de favoritos
+              } @else {
+                A&ntilde;adir a favoritos
+              }
+            </button>
+          } @else {
+            <a class="btn" routerLink="/login">Inicia sesi&oacute;n para favoritos</a>
+          }
         </div>
+        @if (favoriteError()) {
+          <p>{{ favoriteError() }}</p>
+        }
       </div>
 
       @if (p.sprites.front_default) {

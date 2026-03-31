@@ -1,6 +1,5 @@
 <div class="header">
   <h2>Mis Favoritos</h2>
-  <a class="btn primary" routerLink="/favorites/create">+ A&ntilde;adir favorito</a>
 </div>
 
 @if (loading()) {
@@ -13,20 +12,28 @@
 
 @if (!loading() && !errorMsg()) {
   <div class="grid">
-    <a class="card fav" *ngFor="let f of favorites()" [routerLink]="['/favorites', f.id]">
-      <div class="top">
-        <div class="name">#{{ f.pokemon_id }} &middot; {{ f.pokemon_name }}</div>
-        <div class="muted">Fav ID: {{ f.id }}</div>
-      </div>
+    <div class="card fav" *ngFor="let f of favorites()">
+      <a class="quick-link" [routerLink]="['/pokemons', f.pokemon_id]">
+        <img
+          class="sprite"
+          [src]="spriteUrl(f.pokemon_id)"
+          [alt]="'Pokemon #' + f.pokemon_id"
+          loading="lazy"
+        />
+        <div class="name">Pokemon #{{ f.pokemon_id }}</div>
+      </a>
 
-      @if (f.note) {
-        <div class="note">
-          {{ f.note }}
-        </div>
-      } @else {
-        <div class="muted">Sin nota</div>
-      }
-    </a>
+      <div class="actions">
+        <a class="btn" [routerLink]="['/pokemons', f.pokemon_id]">Ver detalle</a>
+        <button
+          type="button"
+          (click)="remove(f.pokemon_id)"
+          [disabled]="removingId() === f.pokemon_id"
+        >
+          {{ removingId() === f.pokemon_id ? 'Quitando...' : 'Quitar' }}
+        </button>
+      </div>
+    </div>
   </div>
 }
 

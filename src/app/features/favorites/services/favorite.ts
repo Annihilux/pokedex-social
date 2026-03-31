@@ -1,74 +1,74 @@
 import { Injectable } from '@angular/core';
+import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { Favorite, FavoriteCreatePayload } from '../../../shared/models/favorite.model';
+import { Favorite } from '../../../shared/models/favorite.model';
 
 @Injectable({ providedIn: 'root' })
 export class FavoriteService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private auth: AuthService
+  ) {}
 
-  /** Devuelve los favoritos del usuario autenticado (RLS se encarga de filtrar) */
-  async getAll(): Promise<Favorite[]> {
+  async addFavorite(pokemonId: number): Promise<void> {
+    const userId = this.requireUserId();
+
+    const { error } = await this.supabase.client.from('favorites').upsert(
+      { user_id: userId, pokemon_id: pokemonId },
+      { onConflict: 'user_id,pokemon_id', ignoreDuplicates: true }
+    );
+
+    if (error) throw error;
+  }
+
+  async removeFavorite(pokemonId: number): Promise<void> {
+    const userId = this.requireUserId();
+
+    const { error } = await this.supabase.client
+      .from('favorites')
+      .delete()
+      .eq('user_id', userId)
+      .eq('pokemon_id', pokemonId);
+
+    if (error) throw error;
+  }
+
+  async getFavorites(): Promise<Favorite[]> {
     const { data, error } = await this.supabase.client
       .from('favorites')
-      .select('*')
+      .select('user_id,pokemon_id,created_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     return (data ?? []) as Favorite[];
   }
 
-  /** Crea un favorito (solo autenticados y para sí mismos por policy) */
-  async create(payload: FavoriteCreatePayload): Promise<Favorite> {
+  async isFavorite(pokemonId: number): Promise<boolean> {
+    const userId = this.auth.user()?.id;
+    if (!userId) return false;
+
     const { data, error } = await this.supabase.client
       .from('favorites')
-      .insert(payload)
-      .select('*')
-      .single();
+      .select('pokemon_id')
+      .eq('user_id', userId)
+      .eq('pokemon_id', pokemonId)
+      .maybeSingle();
 
     if (error) throw error;
-    return data as Favorite;
+    return !!data;
   }
 
-  async getById(id: number): Promise<Favorite> {
-  const { data, error } = await this.supabase.client
-    .from('favorites')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) throw error;
-  return data as Favorite;
+  async getFavoritePokemonIds(): Promise<number[]> {
+    const favorites = await this.getFavorites();
+    return favorites.map((favorite) => favorite.pokemon_id);
   }
 
-  async update(id: number, payload: { note: string | null }): Promise<Favorite> {
-  const { data, error } = await this.supabase.client
-    .from('favorites')
-    .update(payload)
-    .eq('id', id)
-    .select('*')
-    .single();
+  private requireUserId(): string {
+    const userId = this.auth.user()?.id;
+    if (!userId) {
+      throw new Error('Debes iniciar sesion.');
+    }
 
-  if (error) throw error;
-  return data as Favorite;
+    return userId;
   }
-
-  async delete(id: number): Promise<void> {
-  const { error } = await this.supabase.client
-    .from('favorites')
-    .delete()
-    .eq('id', id);
-
-    if (error) throw error;
-  }
-
-  async getAllGlobal(): Promise<Favorite[]> {
-    const { data, error } = await this.supabase.client
-      .from('favorites')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data ?? []) as Favorite[];
-  }
-
 }

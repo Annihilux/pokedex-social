@@ -13,6 +13,7 @@ import { Favorite } from '../../../../shared/models/favorite.model';
 })
 export class ListComponent {
   loading = signal(true);
+  removingId = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   favorites = signal<Favorite[]>([]);
 
@@ -24,12 +25,28 @@ export class ListComponent {
     try {
       this.loading.set(true);
       this.errorMsg.set(null);
-      const data = await this.favoritesService.getAll();
+      const data = await this.favoritesService.getFavorites();
       this.favorites.set(data);
     } catch (e: any) {
       this.errorMsg.set(e?.message ?? 'Error cargando favoritos.');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async remove(pokemonId: number) {
+    try {
+      this.removingId.set(pokemonId);
+      await this.favoritesService.removeFavorite(pokemonId);
+      this.favorites.update((items) => items.filter((item) => item.pokemon_id !== pokemonId));
+    } catch (e: any) {
+      this.errorMsg.set(e?.message ?? 'Error eliminando favorito.');
+    } finally {
+      this.removingId.set(null);
+    }
+  }
+
+  spriteUrl(id: number) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   }
 }

@@ -9,9 +9,6 @@ import { ListComponent as PokemonListComponent } from './features/pokemons/pages
 import { DetailComponent as PokemonDetailComponent } from './features/pokemons/pages/detail/detail';
 
 import { ListComponent as FavoritesListComponent } from './features/favorites/pages/list/list';
-import { CreateComponent as FavoritesCreateComponent } from './features/favorites/pages/create/create';
-import { EditComponent as FavoritesEditComponent } from './features/favorites/pages/edit/edit';
-import { DetailComponent as FavoritesDetailComponent } from './features/favorites/pages/detail/detail';
 
 import { UsersComponent } from './features/admin/pages/users/users';
 import { ManageContentComponent } from './features/admin/pages/manage-content/manage-content';
@@ -33,9 +30,6 @@ export const routes: Routes = [
 
   // Favoritos (requiere login)
   { path: 'favorites', component: FavoritesListComponent, canActivate: [authGuard] },
-  { path: 'favorites/create', component: FavoritesCreateComponent, canActivate: [authGuard] },
-  { path: 'favorites/:id', component: FavoritesDetailComponent, canActivate: [authGuard] },
-  { path: 'favorites/edit/:id', component: FavoritesEditComponent, canActivate: [authGuard, roleGuard] },
 
   // Admin
   { path: 'admin/users', component: UsersComponent, canActivate: [authGuard, roleGuard] },
