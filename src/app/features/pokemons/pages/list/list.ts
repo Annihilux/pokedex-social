@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PokemonService } from '../../services/pokemon';
 import { PokemonListItem } from '../../../../shared/models/pokemon.model';
+import { FavoriteService } from '../../../favorites/services/favorite';
 
 type PokemonCard = { id: number; name: string };
 
@@ -16,6 +17,7 @@ type PokemonCard = { id: number; name: string };
 export class ListComponent {
   loading = signal(true);
   errorMsg = signal<string | null>(null);
+  favoritesCounts = signal<Record<number, number>>({});
 
   // listado ya mapeado a cards
   cards = signal<PokemonCard[]>([]);
@@ -32,13 +34,17 @@ export class ListComponent {
   limit = 24;
   offset = signal(0);
 
-  constructor(private pokemonService: PokemonService) {
+  constructor(
+    private pokemonService: PokemonService,
+    private favoriteService: FavoriteService
+  ) {
     this.load();
   }
 
   load() {
     this.loading.set(true);
     this.errorMsg.set(null);
+    this.favoritesCounts.set({});
 
     this.pokemonService.getPokemons(this.limit, this.offset()).subscribe({
       next: (res) => {
@@ -47,6 +53,7 @@ export class ListComponent {
           return { id, name: p.name };
         });
         this.cards.set(mapped);
+        void this.loadFavoritesCounts(mapped.map((pokemon) => pokemon.id));
         this.loading.set(false);
       },
       error: () => {
@@ -72,6 +79,19 @@ export class ListComponent {
 
   spriteUrl(id: number) {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+  }
+
+  favoritesCount(id: number): number {
+    return this.favoritesCounts()[id] ?? 0;
+  }
+
+  private async loadFavoritesCounts(pokemonIds: number[]): Promise<void> {
+    try {
+      const counts = await this.favoriteService.getFavoritesCounts(pokemonIds);
+      this.favoritesCounts.set(counts);
+    } catch {
+      this.favoritesCounts.set({});
+    }
   }
 
   private getIdFromUrl(url: string): string {

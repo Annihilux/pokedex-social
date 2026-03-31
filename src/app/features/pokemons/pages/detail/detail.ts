@@ -31,6 +31,7 @@ export class DetailComponent {
   favoriteBusy = signal(false);
   favoriteError = signal<string | null>(null);
   isFavorite = signal(false);
+  favoritesCount = signal(0);
   commentForm!: FormGroup;
 
   editingCommentId = signal<number | null>(null);
@@ -68,6 +69,7 @@ export class DetailComponent {
   load(id: string) {
     this.loading.set(true);
     this.errorMsg.set(null);
+    this.favoritesCount.set(0);
 
     this.pokemonService.getPokemonById(id).subscribe({
       next: (p) => {
@@ -75,6 +77,7 @@ export class DetailComponent {
         this.pokemonId = p.id;
         this.loadComments(p.id);
         void this.refreshFavoriteState();
+        void this.refreshFavoritesCount();
         this.loading.set(false);
       },
       error: () => {
@@ -214,6 +217,8 @@ export class DetailComponent {
         await this.favoriteService.addFavorite(this.pokemonId);
         this.isFavorite.set(true);
       }
+
+      await this.refreshFavoritesCount();
     } catch (e: any) {
       this.favoriteError.set(e?.message ?? 'Error actualizando favorito.');
     } finally {
@@ -232,6 +237,15 @@ export class DetailComponent {
       this.isFavorite.set(result);
     } catch {
       this.isFavorite.set(false);
+    }
+  }
+
+  private async refreshFavoritesCount() {
+    try {
+      const count = await this.favoriteService.getPokemonFavoritesCount(this.pokemonId);
+      this.favoritesCount.set(count);
+    } catch {
+      this.favoritesCount.set(0);
     }
   }
 

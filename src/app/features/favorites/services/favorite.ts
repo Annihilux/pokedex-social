@@ -63,6 +63,41 @@ export class FavoriteService {
     return favorites.map((favorite) => favorite.pokemon_id);
   }
 
+  async getPokemonFavoritesCount(pokemonId: number): Promise<number> {
+    const counts = await this.getFavoritesCounts([pokemonId]);
+    return counts[pokemonId] ?? 0;
+  }
+
+  async getFavoritesCounts(pokemonIds: number[]): Promise<Record<number, number>> {
+    const cleanIds = Array.from(
+      new Set(
+        pokemonIds
+          .map((id) => Number(id))
+          .filter((id) => Number.isInteger(id) && id > 0)
+      )
+    );
+
+    if (cleanIds.length === 0) {
+      return {};
+    }
+
+    const { data, error } = await this.supabase.client.rpc('get_favorites_counts', {
+      requested_pokemon_ids: cleanIds
+    });
+
+    if (error) throw error;
+
+    const counts: Record<number, number> = {};
+
+    for (const row of data ?? []) {
+      const pokemonId = Number(row?.pokemon_id);
+      if (!Number.isInteger(pokemonId) || pokemonId <= 0) continue;
+      counts[pokemonId] = Number(row?.favorites_count ?? 0);
+    }
+
+    return counts;
+  }
+
   private requireUserId(): string {
     const userId = this.auth.user()?.id;
     if (!userId) {

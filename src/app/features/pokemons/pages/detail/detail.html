@@ -24,6 +24,9 @@
         <p class="muted">
           Altura: {{ p.height }} &middot; Peso: {{ p.weight }}
         </p>
+        <p class="muted">
+          Favoritos globales: <strong>{{ favoritesCount() }}</strong>
+        </p>
 
         <div class="actions row">
           <a class="btn" [routerLink]="['/pokemons', p.id]">URL actual</a>
