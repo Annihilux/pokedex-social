@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AvatarService } from '../../../../core/services/avatar';
 
 import { FavoriteService } from '../../../favorites/services/favorite';
 import { CommentService } from '../../../comments/services/comment';
@@ -23,6 +24,7 @@ export class ManageContentComponent {
   comments = signal<Comment[]>([]);
 
   constructor(
+    public avatar: AvatarService,
     private favoritesService: FavoriteService,
     private commentService: CommentService
   ) {
@@ -70,5 +72,9 @@ export class ManageContentComponent {
     } catch (e: any) {
       this.errorMsg.set(e?.message ?? 'Error eliminando comentario.');
     }
+  }
+
+  commentUsername(comment: Comment): string {
+    return comment.username?.trim() || 'usuario';
   }
 }

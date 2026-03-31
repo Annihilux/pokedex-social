@@ -7,14 +7,12 @@ export class CommentService {
   constructor(private supabase: SupabaseService) {}
 
   async getByPokemonId(pokemonId: number): Promise<Comment[]> {
-    const { data, error } = await this.supabase.client
-      .from('comments')
-      .select('*')
-      .eq('pokemon_id', pokemonId)
-      .order('created_at', { ascending: false });
+    const { data, error } = await this.supabase.client.rpc('get_comments_with_public_profiles', {
+      requested_pokemon_id: pokemonId
+    });
 
     if (error) throw error;
-    return (data ?? []) as Comment[];
+    return (data ?? []).map((row: any) => this.mapComment(row));
   }
 
   async create(payload: CommentCreatePayload): Promise<Comment> {
@@ -25,7 +23,7 @@ export class CommentService {
       .single();
 
     if (error) throw error;
-    return data as Comment;
+    return this.mapComment(data);
   }
 
   async update(id: number, payload: { content: string }): Promise<Comment> {
@@ -37,7 +35,7 @@ export class CommentService {
       .single();
 
     if (error) throw error;
-    return data as Comment;
+    return this.mapComment(data);
   }
 
   async delete(id: number): Promise<void> {
@@ -50,13 +48,21 @@ export class CommentService {
   }
 
   async getAllGlobal(): Promise<Comment[]> {
-    const { data, error } = await this.supabase.client
-      .from('comments')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await this.supabase.client.rpc('get_all_comments_with_public_profiles');
 
     if (error) throw error;
-    return (data ?? []) as Comment[];
+    return (data ?? []).map((row: any) => this.mapComment(row));
   }
-  
+
+  private mapComment(row: any): Comment {
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      pokemon_id: row.pokemon_id,
+      content: row.content,
+      created_at: row.created_at,
+      username: row?.username ?? row?.profiles?.username ?? null,
+      avatar_url: row?.avatar_url ?? row?.profiles?.avatar_url ?? null
+    };
+  }
 }

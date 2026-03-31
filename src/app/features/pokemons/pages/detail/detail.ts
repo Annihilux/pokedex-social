@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { AvatarService } from '../../../../core/services/avatar';
 import { PokemonService } from '../../services/pokemon';
 import { PokemonDetail } from '../../../../shared/models/pokemon.model';
 
@@ -40,6 +41,7 @@ export class DetailComponent {
     private pokemonService: PokemonService,
     private fb: FormBuilder,
     public auth: AuthService,
+    public avatar: AvatarService,
     private commentService: CommentService
   ) {
     this.commentForm = this.fb.group({
@@ -182,6 +184,10 @@ export class DetailComponent {
     } catch (e: any) {
       alert(e?.message ?? 'Error eliminando comentario.');
     }
+  }
+
+  commentUsername(comment: Comment): string {
+    return comment.username?.trim() || 'usuario';
   }
 
 }

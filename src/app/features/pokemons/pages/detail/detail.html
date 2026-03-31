@@ -61,33 +61,42 @@
     }
 
     @if (!commentsLoading() && !commentsError()) {
-      <ul>
-        <li *ngFor="let c of comments()">
-          <small class="muted">
-            {{ c.created_at | date:'dd/MM/yyyy · HH:mm' }}
-          </small>
+      <ul class="comments-list">
+        <li class="comment-card" *ngFor="let c of comments()">
+          <img
+            class="comment-avatar"
+            [src]="avatar.resolveAvatarUrl(c.avatar_url)"
+            [alt]="'Avatar de ' + commentUsername(c)"
+          />
 
-          @if (editingCommentId() === c.id) {
-            <div>
-              <form [formGroup]="editForm" (ngSubmit)="saveEdit(c)">
-                <input type="text" formControlName="content" />
-                <button type="submit">Guardar</button>
-                <button type="button" (click)="cancelEdit()">Cancelar</button>
-              </form>
-              @if (editError()) {
-                <p>{{ editError() }}</p>
-              }
+          <div class="comment-body">
+            <div class="comment-meta">
+              <strong class="comment-username">{{ commentUsername(c) }}</strong>
+              <small class="muted">
+                {{ c.created_at | date:'dd/MM/yyyy HH:mm' }}
+              </small>
             </div>
-          } @else {
-            <div>{{ c.content }}</div>
 
-            @if (canManageComment(c)) {
-              <button type="button" (click)="startEdit(c)">Editar</button>
-              <button type="button" (click)="removeComment(c)">Eliminar</button>
+            @if (editingCommentId() === c.id) {
+              <div>
+                <form [formGroup]="editForm" (ngSubmit)="saveEdit(c)">
+                  <input type="text" formControlName="content" />
+                  <button type="submit">Guardar</button>
+                  <button type="button" (click)="cancelEdit()">Cancelar</button>
+                </form>
+                @if (editError()) {
+                  <p>{{ editError() }}</p>
+                }
+              </div>
+            } @else {
+              <div class="comment-content">{{ c.content }}</div>
+
+              @if (canManageComment(c)) {
+                <button type="button" (click)="startEdit(c)">Editar</button>
+                <button type="button" (click)="removeComment(c)">Eliminar</button>
+              }
             }
-          }
-
-          <hr />
+          </div>
         </li>
       </ul>
     }
