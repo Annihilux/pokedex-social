@@ -23,19 +23,16 @@ export class ListComponent implements OnDestroy {
   errorMsg = signal<string | null>(null);
   favoritesCounts = signal<Record<number, number>>({});
 
-  // Current paginated page mapped to cards
   cards = signal<PokemonCard[]>([]);
-  // Global search results (name/id)
   searchResults = signal<PokemonCard[]>([]);
 
-  query = signal('');
-  isSearchMode = computed(() => this.query().trim().length > 0);
+  activeQuery = signal('');
+  isSearchMode = computed(() => this.activeQuery().length > 0);
   visibleCards = computed(() => (this.isSearchMode() ? this.searchResults() : this.cards()));
 
-  limit = 100;
+  limit = 48;
   offset = signal(0);
 
-  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private pageRequestSub: Subscription | null = null;
   private searchRequestSub: Subscription | null = null;
 
@@ -49,7 +46,6 @@ export class ListComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.pageRequestSub?.unsubscribe();
     this.searchRequestSub?.unsubscribe();
-    if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
   }
 
   loadPage(): void {
@@ -69,7 +65,7 @@ export class ListComponent implements OnDestroy {
         this.pageLoading.set(false);
       },
       error: () => {
-        this.errorMsg.set('Error cargando Pokémons.');
+        this.errorMsg.set('Error cargando Pokemons.');
         this.pageLoading.set(false);
       }
     });
@@ -85,27 +81,19 @@ export class ListComponent implements OnDestroy {
     this.loadPage();
   }
 
-  setQuery(value: string): void {
-    this.query.set(value);
-    const term = value.trim().toLowerCase();
-
-    if (this.searchDebounceTimer) {
-      clearTimeout(this.searchDebounceTimer);
-      this.searchDebounceTimer = null;
-    }
-
+  runSearch(rawQuery: string): void {
+    const term = rawQuery.trim().toLowerCase();
+    this.errorMsg.set(null);
     this.searchRequestSub?.unsubscribe();
     this.searchLoading.set(false);
 
     if (!term) {
+      this.activeQuery.set('');
       this.searchResults.set([]);
-      this.errorMsg.set(null);
       return;
     }
 
-    this.searchDebounceTimer = setTimeout(() => {
-      this.searchPokemon(term);
-    }, 250);
+    this.searchPokemon(term);
   }
 
   spriteUrl(id: number): string {
@@ -118,16 +106,17 @@ export class ListComponent implements OnDestroy {
 
   private searchPokemon(term: string): void {
     this.searchLoading.set(true);
-    this.errorMsg.set(null);
     this.searchRequestSub?.unsubscribe();
 
     this.searchRequestSub = this.pokemonService.getPokemonById(term).subscribe({
       next: (pokemon) => {
+        this.activeQuery.set(term);
         this.searchResults.set([{ id: pokemon.id, name: pokemon.name }]);
         void this.loadFavoritesCounts([pokemon.id]);
         this.searchLoading.set(false);
       },
       error: () => {
+        this.activeQuery.set(term);
         this.searchResults.set([]);
         this.searchLoading.set(false);
       }

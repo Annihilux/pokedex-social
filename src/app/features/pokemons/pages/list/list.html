@@ -1,11 +1,26 @@
 <div class="header">
   <h2>Pokemons</h2>
 
-  <input
-    type="text"
-    placeholder="Buscar por nombre o id..."
-    (input)="setQuery($any($event.target).value)"
-  />
+  <div class="search-controls">
+    <input
+      #searchInput
+      type="text"
+      placeholder="Buscar por nombre o id..."
+      (keydown.enter)="runSearch(searchInput.value)"
+    />
+
+    <button
+      type="button"
+      class="search-btn"
+      aria-label="Buscar Pokemon"
+      (click)="runSearch(searchInput.value)"
+      [disabled]="loading()"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M10.5 3a7.5 7.5 0 1 0 4.73 13.32l4.72 4.73 1.06-1.06-4.73-4.72A7.5 7.5 0 0 0 10.5 3zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12z" />
+      </svg>
+    </button>
+  </div>
 </div>
 
 @if (loading()) {
