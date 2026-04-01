@@ -1,6 +1,6 @@
 <div class="card profile-card">
   <h2>Perfil</h2>
-  <p class="muted">Gestiona tu username y configura una contrasena para entrar tambien sin Google.</p>
+  <p class="muted">Gestiona tu username y configura tu contrasena de acceso.</p>
 
   <div class="summary">
     <img class="profile-avatar" [src]="currentAvatarUrl()" alt="Foto de perfil actual" />
@@ -88,7 +88,7 @@
 
   <section class="section">
     <h3>Contrasena</h3>
-    <p class="muted">Establece una contrasena para poder iniciar sesion sin Google.</p>
+    <p class="muted">Actualiza tu contrasena para mantener tu cuenta protegida.</p>
 
     <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
       <div class="field">

@@ -27,7 +27,6 @@
           [src]="avatar.resolveAvatarUrl(auth.profile()?.avatar_url)"
           alt="Avatar del usuario"
         />
-        <span class="role">{{ auth.profile()?.role }}</span>
         <button type="button" (click)="logout()">Logout</button>
       }
     </div>

@@ -438,6 +438,26 @@ export class AuthService {
     return data;
   }
 
+  async requestPasswordReset(email: string): Promise<void> {
+    const normalizedEmail = this.normalizeEmail(email);
+
+    if (!normalizedEmail) {
+      throw new Error('El correo es obligatorio.');
+    }
+
+    const redirectTo = typeof window !== 'undefined'
+      ? `${window.location.origin}/profile`
+      : undefined;
+
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(normalizedEmail, {
+      redirectTo
+    });
+
+    if (error) {
+      throw new Error(error.message ?? 'No se pudo enviar el correo de recuperacion.');
+    }
+  }
+
   async logout() {
     const { error } = await this.supabase.client.auth.signOut();
     if (error) throw error;

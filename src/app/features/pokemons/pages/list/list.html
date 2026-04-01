@@ -51,6 +51,6 @@
 @if (!isSearchMode()) {
   <div class="pager">
     <button (click)="prevPage()" [disabled]="loading() || offset() === 0">Anterior</button>
-    <button (click)="nextPage()" [disabled]="loading()">Siguiente</button>
+    <button (click)="nextPage()" [disabled]="loading() || !canGoNext()">Siguiente</button>
   </div>
 }

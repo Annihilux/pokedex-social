@@ -54,7 +54,7 @@ export class RegisterComponent implements OnDestroy {
     const { username, email, password, confirmPassword } = this.form.value;
 
     if (password !== confirmPassword) {
-      this.errorMsg.set('Las contraseñas no coinciden.');
+      this.errorMsg.set('Las contraseÃ±as no coinciden.');
       return;
     }
 

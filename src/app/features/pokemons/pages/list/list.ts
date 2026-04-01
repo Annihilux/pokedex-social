@@ -29,6 +29,7 @@ export class ListComponent implements OnDestroy {
   activeQuery = signal('');
   isSearchMode = computed(() => this.activeQuery().length > 0);
   visibleCards = computed(() => (this.isSearchMode() ? this.searchResults() : this.cards()));
+  canGoNext = computed(() => this.offset() + this.limit < this.pokemonService.maxPokemonId);
 
   limit = 48;
   offset = signal(0);
@@ -72,6 +73,10 @@ export class ListComponent implements OnDestroy {
   }
 
   nextPage(): void {
+    if (!this.canGoNext()) {
+      return;
+    }
+
     this.offset.set(this.offset() + this.limit);
     this.loadPage();
   }

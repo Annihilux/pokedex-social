@@ -2,12 +2,6 @@
   <h2>Login</h2>
   <p class="muted">Accede para guardar favoritos y comentar.</p>
 
-  <button class="btn google-btn" type="button" (click)="signInWithGoogle()">
-    Entrar con Google
-  </button>
-
-  <p class="muted separator">o entra con email y contrasena</p>
-
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
       <label>Email</label>
@@ -25,6 +19,35 @@
       }
     </div>
 
+    <button class="link-btn" type="button" (click)="toggleResetForm()">
+      @if (showResetForm()) {
+        Ocultar recuperacion de contrasena
+      } @else {
+        He olvidado mi contrasena
+      }
+    </button>
+
+    @if (showResetForm()) {
+      <div class="forgot-card" [formGroup]="resetForm">
+        <div class="field">
+          <label>Email de recuperacion</label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="tu@email.com"
+            (keydown.enter)="$event.preventDefault(); sendPasswordReset()"
+          />
+          @if (resetForm.get('email')?.touched && resetForm.get('email')?.invalid) {
+            <small>Introduce un correo valido.</small>
+          }
+        </div>
+
+        <button class="btn" type="button" (click)="sendPasswordReset()" [disabled]="resetLoading()">
+          {{ resetLoading() ? 'Enviando...' : 'Enviar correo de recuperacion' }}
+        </button>
+      </div>
+    }
+
     <div class="actions">
       <button class="primary" type="submit" [disabled]="loading() || form.invalid">
         {{ loading() ? 'Entrando...' : 'Entrar' }}
@@ -34,6 +57,9 @@
 
     @if (errorMsg()) {
       <p>{{ errorMsg() }}</p>
+    }
+    @if (resetSuccessMsg()) {
+      <p>{{ resetSuccessMsg() }}</p>
     }
   </form>
 </div>

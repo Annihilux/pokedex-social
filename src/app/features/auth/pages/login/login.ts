@@ -14,9 +14,13 @@ import { AuthService } from '../../../../core/services/auth';
 export class LoginComponent {
 
   loading = signal(false);
+  resetLoading = signal(false);
+  showResetForm = signal(false);
   errorMsg = signal<string | null>(null);
+  resetSuccessMsg = signal<string | null>(null);
 
   form!: FormGroup;
+  resetForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -27,10 +31,15 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
+
+    this.resetForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
   async submit() {
     this.errorMsg.set(null);
+    this.resetSuccessMsg.set(null);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -51,13 +60,42 @@ export class LoginComponent {
     }
   }
 
-  async signInWithGoogle() {
+  toggleResetForm() {
     this.errorMsg.set(null);
+    this.resetSuccessMsg.set(null);
+    const nextVisible = !this.showResetForm();
+    this.showResetForm.set(nextVisible);
+
+    if (nextVisible) {
+      const loginEmail = String(this.form.get('email')?.value ?? '').trim();
+      const resetEmail = String(this.resetForm.get('email')?.value ?? '').trim();
+
+      if (loginEmail && !resetEmail) {
+        this.resetForm.patchValue({ email: loginEmail });
+      }
+    }
+  }
+
+  async sendPasswordReset() {
+    this.errorMsg.set(null);
+    this.resetSuccessMsg.set(null);
+
+    if (this.resetForm.invalid) {
+      this.resetForm.markAllAsTouched();
+      return;
+    }
+
+    const { email } = this.resetForm.value;
 
     try {
-      await this.auth.signInWithGoogle();
+      this.resetLoading.set(true);
+      await this.auth.requestPasswordReset(email);
+      this.resetSuccessMsg.set('Se ha enviado un correo para restablecer tu contrase\u00f1a');
     } catch (e: any) {
-      this.errorMsg.set(e?.message ?? 'Error iniciando sesion con Google.');
+      this.errorMsg.set(e?.message ?? 'No se pudo enviar el correo de recuperacion.');
+    } finally {
+      this.resetLoading.set(false);
     }
   }
 }
+
